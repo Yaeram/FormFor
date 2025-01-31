@@ -1,0 +1,15 @@
+.main-page {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.main-page__content {
+    flex: 4;
+    margin-top: 20px;
+    display: flex;
+    flex-direction: row;
+}
+.main-page__content > div {
+    width: 50%;
+}
