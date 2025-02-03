@@ -1,4 +1,5 @@
 import {React, Component } from "react";
+import { Link } from "react-router";
 import './Header.css'
 
 class Header extends Component {
@@ -11,12 +12,12 @@ class Header extends Component {
 
     render() {
         return(
-            <div className="header-container">
+            <nav className="header-container">
                 <div></div>
-                <h3>First heading</h3>
-                <h3>Second heading</h3>
-                <h3>Third heading</h3>
-            </div>
+                <Link to="/" className="form-link">Главная</Link>
+                <Link to="/New_Form" className="form-link">Создать анкету</Link>
+                <Link to="/Saved_Form" className="form-link">Созданные анкеты</Link>
+            </nav>
         )
     }
     

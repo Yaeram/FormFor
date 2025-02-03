@@ -1,10 +1,10 @@
 .footer-container {
     display: flex;
-    flex: 1;
+    flex: 0.6;
     flex-direction: row;
     min-height: 12vh;
-    background-color: bisque;
-    border-bottom: 1px solid #615e5e;
+    background-color: rgb(158, 158, 158);
+    border-top: 1px solid #3b3b3b;
 }
 
 .footer-container > h3 {

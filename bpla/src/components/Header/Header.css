@@ -1,18 +1,56 @@
 .header-container {
     display: flex;
     flex-direction: row;
-    background-color: bisque;
-    border-bottom: 1px solid #615e5e;
-    flex: 1;
-}
+    background-color: rgb(158, 158, 158);
+    border-bottom: 1px solid #3b3b3b;
+    flex: 0.6;
 
-.header-container > h3 {
+}
+                                                                                                                                                                                         
+.header-container > a {
     flex: 1;
     display: flex;
     justify-content: center;
     align-items: center;
+    font-size: 19px;
 }
 
 .header-container > div {
     width: 50%;
 }
+
+.form-link {
+    display: inline-block;
+    color: rgb(255, 255, 255);
+    text-decoration: none;
+    border-radius: 4px;
+}
+
+.header-container > a {
+    position: relative;
+    border-radius: 0px;
+    transition: background-color 0.5s ease-out, color 0.1s ease;
+    margin: 0;
+    cursor: pointer;
+    overflow: hidden;
+}
+
+.header-container > a:hover {
+    background-color: rgb(236, 236, 236);
+    color: black;   
+    height: 100%;
+}
+.header-container > a::after {
+    content: '';
+    position: absolute;
+    top: 0%;
+    background-color: rgb(0, 0, 0);
+    height: 3px;
+    width: 50%;
+    transform: translateX(150%);
+    transition: all 0.5s;
+  }
+
+  .header-container > a:hover::after {
+    transform: translateX(2%);
+  }

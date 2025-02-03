@@ -10,11 +10,10 @@ class Main extends Component {
                 <Header></Header>
                 <div className="main-page__content">
                     <div>
-                        вшвшвшвшв
-
+                        бббббббббббббббббббббб
                     </div>
                     <div>
-                        азвзввззввзвззв
+                        ааааааааааааааааааа
                     </div>
                 </div>
                 <Footer></Footer>
