@@ -17,6 +17,7 @@ class Header extends Component {
                 <Link to="/" className="form-link">Главная</Link>
                 <Link to="/New_Form" className="form-link">Создать анкету</Link>
                 <Link to="/Saved_Form" className="form-link">Созданные анкеты</Link>
+                <Link to="/Form_Template" className="form-link">Шаблоны анкет</Link>
             </nav>
         )
     }

@@ -3,7 +3,8 @@
     flex-direction: row;
     background-color: rgb(158, 158, 158);
     border-bottom: 1px solid #3b3b3b;
-    flex: 0.6;
+    flex: 1;
+    min-height: 15vh;
 
 }
                                                                                                                                                                                          

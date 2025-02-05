@@ -1,5 +1,5 @@
 import PouchDB from 'pouchdb';
 
-const db = new PouchDB('form_data');
+const db = new PouchDB('form-data');
 
 export default db;

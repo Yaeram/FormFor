@@ -1,45 +1,16 @@
-.saved-forms-container {
-    margin: 20px;
-    padding: 20px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    background-color: #f9f9f9;
-}
-
-.saved-forms-list {
-    list-style: none;
+  .saved-forms-container {
+    display: grid;
+    grid-gap: 10px;
+  }
+  
+  .saved-forms-container ul {
+    list-style: none; /* Remove list markers */
     padding: 0;
-}
-
-.saved-form-item {
-    margin-bottom: 20px;
-    padding: 15px;
-    border: 1px solid #eee;
-    border-radius: 8px;
-    background-color: #fff;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.form-preview {
-    margin-bottom: 15px;
-}
-
-
-.form-field-preview {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    margin-bottom: 10px;
-}
-
-.form-field-preview label {
-  margin-right: 10px;
-}
-
-.form-field-preview input[type="text"],
-.form-field-preview select {
-    padding: 8px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    width: 200px; /* задаем ширину для полей */
-}
+    margin: 0;
+  }
+  
+  .saved-forms-container li {
+    border: 1px solid #ccc;
+    padding: 10px;
+    box-sizing: border-box;
+  }

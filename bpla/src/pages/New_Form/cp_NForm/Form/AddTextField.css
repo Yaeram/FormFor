@@ -1,0 +1,16 @@
+.add-text-field {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  
+  .add-text-field label {
+    display: block;
+    margin-bottom: 5px;
+  }
+  
+  .add-text-field input {
+    padding: 5px;
+    border: 1px solid #ccc;
+  }
