@@ -38,26 +38,26 @@ function Form() {
   
     useEffect(() => {
       const loadTemplate = async () => {
-        try {
-          const template = await db.get(templateId);
-          setTemplate(template);
-          if (template && template.formFields && Array.isArray(template.formFields)) {
-            setFormData(template.formFields.map(field => ({ ...field, value: '' })));
-            setInitialFormData(template.formFields.map(field => ({ ...field, value: '' })));
-            originalFormDataRef.current = template.formFields.map(field => ({ ...field, value: '' }));
-          } else {
-            console.warn("Template has no formFields, or it's not an array.");
-            setFormData([]);
-            setInitialFormData([]);
-            originalFormDataRef.current = [];
+          try {
+              const template = await db.get(templateId);
+              setTemplate(template);
+              if (template && template.formFields && Array.isArray(template.formFields)) {
+                  // Initialize form data with empty answers
+                  const initialFormData = template.formFields.map(field => ({ ...field, answer: '' }));
+                  setFormData(initialFormData);
+                  originalFormDataRef.current = initialFormData;
+              } else {
+                  console.warn("Template has no formFields, or it's not an array.");
+                  setFormData([]);
+                  originalFormDataRef.current = [];
+              }
+          } catch (error) {
+              console.error('Error loading template:', error);
           }
-        } catch (error) {
-          console.error('Error loading template:', error);
-        }
       };
-  
+
       loadTemplate();
-    }, [templateId]);
+  }, [templateId]);
   
     useEffect(() => {
       if (originalFormDataRef.current) {
@@ -74,13 +74,14 @@ function Form() {
       return true;
     };
   
-    const handleInputChange = (id, value) => {
+    const handleInputChange = (fieldId, value) => {
+      console.log('handleInputChange', fieldId, value);
       setFormData(prevData =>
-        prevData.map(field =>
-          field.id === id ? { ...field, value: value } : field
-        )
+          prevData.map(field =>
+              field.id === fieldId ? { ...field, answer: value } : field
+          )
       );
-    };
+  };
   
     const toggleEditMode = () => {
       setIsEditMode(!isEditMode);
@@ -167,7 +168,7 @@ function Form() {
         onClose: () => setConfirmationDialog({ ...confirmationDialog, isOpen: false }),
         onConfirm: null,
       });
-      navigate('/saved');
+      navigate('/Saved_Form');
     };
   
   
@@ -191,7 +192,6 @@ function Form() {
                 onUpdateField={handleUpdateField}
                 onUpdateOptions={handleUpdateOptions}
                 />
-                {/* Render AddTextField and AddSelectField here */}
                 <AddTextField onAddField={handleAddField} />
                 <AddSelectField onAddField={handleAddField} />
                 <button onClick={saveEditedTemplate}>Сохранить изменения шаблона</button>
@@ -217,7 +217,6 @@ function Form() {
             onClose={() => setShowConfirmationDialog(false)}
             />
     
-            {/* Use ConfirmationDialog for notifications */}
             <Confirmation_Dialog
             isOpen={confirmationDialog.isOpen}
             message={confirmationDialog.message}

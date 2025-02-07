@@ -22,10 +22,11 @@ function Tag({ formTitle, formData, templateId, onComplete }) {
             const filledFormData = {
                 _id: uuidv4(),
                 templateId: templateId,
-                formFields: formData,
+                formFields: formData, //  Сохраняем formData с ответами
                 type: 'form',
                 title: formTitle,
-                tag: formTag
+                tag: formTag,
+                createdAt: Date.now()  //  Добавляем дату создания
             };
             await db.put(filledFormData);
             onComplete(formTag, filledFormData); // Notify parent with the generated tag and filled form data

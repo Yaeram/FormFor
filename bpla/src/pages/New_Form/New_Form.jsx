@@ -43,7 +43,7 @@ function New_Form() {
             console.log('templateData before saving:', templateData); // Добавьте эту строку
             await db.put(templateData);
             alert(`Шаблон анкеты "${templateTitle}" сохранен с тегом: ${templateTag}!`);
-            navigate('/'); // Перенаправляем на FormTemplate
+            navigate('/Form_Template'); // Перенаправляем на FormTemplate
         } catch (error) {
             console.error('Error saving template:', error);
         }

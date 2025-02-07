@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import { Header } from "../../components/Header/Header";
 import { Footer } from "../../components/Footer/Footer";
+import { Text } from "../../text/text";
 import './Main.css'
 
 class Main extends Component {
@@ -10,10 +11,16 @@ class Main extends Component {
                 <Header></Header>
                 <div className="main-page__content">
                     <div>
-                        бббббббббббббббббббббб
+                        {Text().block1}
+                        </div>
+                    <div>
+                        {Text().block2}
                     </div>
                     <div>
-                        ааааааааааааааааааа
+                        {Text().block3}
+                    </div>
+                    <div>
+                        {Text().block4}
                     </div>
                 </div>
                 <Footer></Footer>

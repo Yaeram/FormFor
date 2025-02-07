@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import './Edit_Mode.css'; 
 
 
 function Edit_Mode({ formFields, onDeleteField, onUpdateField, onUpdateOptions }) {
