@@ -28,7 +28,6 @@ function New_Form() {
     const addField = (newField) => {
         setFormFields([...formFields, { ...newField, id: uuidv4() }]);
     };
-
     const saveTemplate = async () => {
         try {
             const templateTag = generateTag(); // Генерируем тег
@@ -40,14 +39,43 @@ function New_Form() {
                 tag: templateTag, // Сохраняем тег
                 createdAt: Date.now() // Добавляем дату и время создания
             };
-            console.log('templateData before saving:', templateData); // Добавьте эту строку
+
+            console.groupCollapsed('Saving Template'); // Group console logs
+            console.log('Template data before saving:', templateData);
+            console.log('Template ID:', templateData._id);
+            console.log('Template Type:', templateData.type);
+            console.log('Template Form Fields:', templateData.formFields);
+            console.log('Template Tag:', templateData.tag);
+            console.groupEnd();
+
             await db.put(templateData);
+
+            console.log('Template saved successfully with ID:', templateData._id);
             alert(`Шаблон анкеты "${templateTitle}" сохранен с тегом: ${templateTag}!`);
             navigate('/Form_Template'); // Перенаправляем на FormTemplate
         } catch (error) {
             console.error('Error saving template:', error);
         }
     };
+    // const saveTemplate = async () => {
+    //     try {
+    //         const templateTag = generateTag(); // Генерируем тег
+    //         const templateData = {
+    //             _id: `template_${uuidv4()}`,
+    //             title: templateTitle, // Сохраняем название шаблона
+    //             formFields: formFields || [],
+    //             type: 'template',
+    //             tag: templateTag, // Сохраняем тег
+    //             createdAt: Date.now() // Добавляем дату и время создания
+    //         };
+    //         console.log('templateData before saving:', templateData); // Добавьте эту строку
+    //         await db.put(templateData);
+    //         alert(`Шаблон анкеты "${templateTitle}" сохранен с тегом: ${templateTag}!`);
+    //         navigate('/Form_Template'); // Перенаправляем на FormTemplate
+    //     } catch (error) {
+    //         console.error('Error saving template:', error);
+    //     }
+    // };
 
     return (
         <div className="new-form-container">

@@ -15,9 +15,9 @@ class Header extends Component {
             <nav className="header-container">
                 <div></div>
                 <Link to="/" className="form-link">Главная</Link>
-                <Link to="/New_Form" className="form-link">Создать анкету</Link>
+                <Link to="/New_Form" className="form-link">Создать шаблон</Link>
+                <Link to="/Form_Template" className="form-link">Готовые шаблоны</Link>
                 <Link to="/Saved_Form" className="form-link">Созданные анкеты</Link>
-                <Link to="/Form_Template" className="form-link">Шаблоны анкет</Link>
             </nav>
         )
     }
