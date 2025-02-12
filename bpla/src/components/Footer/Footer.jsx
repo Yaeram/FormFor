@@ -13,9 +13,9 @@ class Footer extends Component {
         return(
             <div className="footer-container">
                 <div></div>
-                <h3>First heading</h3>
-                <h3>Second heading</h3>
-                <h3>Third heading</h3>
+                <h3>Информационная система сбора и обработки информации</h3>
+                <h3>Козлова М.Е. <br/>
+                kozlova_me@citis.ru</h3>
             </div>
         )
     }
