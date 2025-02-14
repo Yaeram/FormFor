@@ -6,7 +6,6 @@ import { Footer } from '../../components/Footer/Footer';
 import './Saved_Form.css';
 import Confirmation_Dialog from '../Form/cp_Form/Confirmation_Dialog/Confirmation_Dialog';
 
-
 function Saved_Form() {
     const [savedForms, setSavedForms] = useState([]);
     const [showConfirmationDialog, setShowConfirmationDialog] = useState(false);
@@ -79,7 +78,7 @@ function Saved_Form() {
                                     </p>
                                     <Link to={{
                                         pathname: `/view/${form._id}`,
-                                        state: { formData: form.formFields }
+                                        state: { formData: form.formFields, tableData: form.tableData }
                                     }}>Посмотреть</Link>
                                     <button onClick={() => handleDeleteForm(form._id)}>Удалить</button>
                                 </div>
@@ -93,7 +92,7 @@ function Saved_Form() {
                     onConfirm={() => handleConfirmation(true)}
                     onClose={() => setShowConfirmationDialog(false)}
                 />
-            </div>  
+            </div>
             <Footer></Footer>
         </div>
     );
@@ -107,6 +106,7 @@ export default Saved_Form;
 //     const [formToDelete, setFormToDelete] = useState(null);
 //     const navigate = useNavigate();
 //     const location = useLocation();
+//     const [searchQuery, setSearchQuery] = useState(''); // Добавляем состояние для поискового запроса
 
 //     useEffect(() => {
 //         const loadSavedForms = async () => {
@@ -115,7 +115,6 @@ export default Saved_Form;
 //                     include_docs: true,
 //                     selector: { type: 'form' },
 //                 });
-//                 // Sort forms by createdAt in descending order
 //                 const sortedForms = forms.rows.map(row => row.doc).sort((a, b) => b.createdAt - a.createdAt);
 //                 setSavedForms(sortedForms);
 //             } catch (error) {
@@ -130,7 +129,6 @@ export default Saved_Form;
 //         setFormToDelete(formId);
 //         setShowConfirmationDialog(true);
 //     };
-
 
 //     const handleConfirmation = async (confirmed) => {
 //         setShowConfirmationDialog(false);
@@ -150,35 +148,49 @@ export default Saved_Form;
 //     return (
 //         <div className="saved-forms-container">
 //             <Header></Header>
-//             <h1>Сохраненные анкеты</h1>
-//             <ul>
-//                 {savedForms.map((form) => (
-//                     <li key={form._id}>
-//                         <div>
-//                             <h2>{form.title}</h2>
-//                             <p>Тег: {form.tag}</p>
-//                             <p>
-//                                 Дата создания: {new Date(form.createdAt).toLocaleString()}
-//                             </p>
-//                              <Link to={{
-//                                 pathname: `/view/${form._id}`,
-//                                 state: { formData: form.formFields }  //  Передаем formData как state
-//                              }}>Посмотреть</Link>
-//                             <button onClick={() => handleDeleteForm(form._id)}>Удалить</button>
-//                         </div>
-//                     </li>
-//                 ))}
-//             </ul>
+//             <div style={{marginLeft: 40, marginRight: 40, flex: 4}}>
+//                 <h1>Сохраненные анкеты</h1>
+//                 <input
+//                     type="text"
+//                     placeholder="Поиск по тегу или названию"
+//                     value={searchQuery}
+//                     onChange={(e) => setSearchQuery(e.target.value)}
+//                 />
+//                 <ul>
+//                     {savedForms
+//                         .filter(form =>
+//                             form.tag.toLowerCase().includes(searchQuery.toLowerCase()) ||
+//                             form.title.toLowerCase().includes(searchQuery.toLowerCase())
+//                         )
+//                         .map((form) => (
+//                             <li key={form._id}>
+//                                 <div>
+//                                     <h2>{form.title}</h2>
+//                                     <p>Тег: {form.tag}</p>
+//                                     <p>
+//                                         Дата создания: {new Date(form.createdAt).toLocaleString()}
+//                                     </p>
+//                                     <Link to={{
+//                                         pathname: `/view/${form._id}`,
+//                                         state: { formData: form.formFields, tableData: form.tableData } // Передаем tableData
+//                                     }}>Посмотреть</Link>
+//                                     <button onClick={() => handleDeleteForm(form._id)}>Удалить</button>
+//                                 </div>
+//                             </li>
+//                         ))}
+//                 </ul>
 
-//             <Confirmation_Dialog
-//                 isOpen={showConfirmationDialog}
-//                 message={'Вы уверены, что хотите удалить анкету?'}
-//                 onConfirm={() => handleConfirmation(true)}
-//                 onClose={() => setShowConfirmationDialog(false)}
-//             />
+//                 <Confirmation_Dialog
+//                     isOpen={showConfirmationDialog}
+//                     message={'Вы уверены, что хотите удалить анкету?'}
+//                     onConfirm={() => handleConfirmation(true)}
+//                     onClose={() => setShowConfirmationDialog(false)}
+//                 />
+//             </div>
 //             <Footer></Footer>
 //         </div>
 //     );
 // }
 
 // export default Saved_Form;
+

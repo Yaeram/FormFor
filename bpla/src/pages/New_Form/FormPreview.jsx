@@ -24,18 +24,17 @@ function FormPreview({ formFields, tableDataArray, onDeleteField, onDeleteTable 
               tableDataArray.map((tableData, index) => (
                   <div key={index}>
                       <table>
-                          <tbody>
-                              {/* Используем tableData вместо row */}
-                              {tableData.map((row, rowIndex) => (
-                                  <tr key={rowIndex}>
-                                      {row.map((cell, colIndex) => (
-                                          <td key={colIndex}>
-                                              {cell}
-                                          </td>
-                                      ))}
-                                  </tr>
-                              ))}
-                          </tbody>
+                      <tbody>
+                    {tableData.map((row, rowIndex) => (
+                        <tr key={rowIndex}>
+                            {row.map((cell, colIndex) => (
+                                <td key={colIndex}>
+                                    {cell}
+                                </td>
+                            ))}
+                        </tr>
+                    ))}
+                </tbody>
                       </table>
                       <button onClick={() => onDeleteTable(index)}>Удалить таблицу</button>
                   </div>

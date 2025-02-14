@@ -77,7 +77,7 @@ function New_Form() {
     return (
         <div className="new-form-container">
             <Header></Header>
-            <div style={{flex: 4}}>
+            <div style={{flex: 4, marginBottom: 20}}>
                 <h2>Создать новый шаблон анкеты</h2>
                 <div className="new-form-content">
                     <div className="new-form-creation">
