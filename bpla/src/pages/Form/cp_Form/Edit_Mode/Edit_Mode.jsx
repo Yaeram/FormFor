@@ -23,9 +23,19 @@ function Edit_Mode({ formFields, tableDataArray, onDeleteField, onUpdateField, o
         handleInputChange(fieldId, value);
     };
 
-    const handleCellChange = (tableIndex, rowIndex, colIndex, value) => {
+   const handleCellChange = (tableIndex, rowIndex, colIndex, value) => {
         const updatedTableDataArray = [...tableDataArray];
-        updatedTableDataArray[tableIndex][rowIndex][colIndex] = value;
+        if (!updatedTableDataArray[tableIndex] || !Array.isArray(updatedTableDataArray[tableIndex].tableData)) {
+            console.warn(`Invalid table index: ${tableIndex}.  tableDataArray:`, updatedTableDataArray);
+            return;
+        }
+        if (!updatedTableDataArray[tableIndex].tableData[rowIndex] || !Array.isArray(updatedTableDataArray[tableIndex].tableData[rowIndex])) {
+            console.warn(`Invalid row index: ${rowIndex} in table ${tableIndex}.  Row:`, updatedTableDataArray[tableIndex]);
+            return;
+        }
+
+        updatedTableDataArray[tableIndex].tableData[rowIndex][colIndex] = value;
+        console.log(value)
         onUpdateTable(tableIndex, updatedTableDataArray[tableIndex]);
     };
 
@@ -43,16 +53,17 @@ function Edit_Mode({ formFields, tableDataArray, onDeleteField, onUpdateField, o
                             onChange={(event) => handleLabelChange(event, field.id)}
                         />
                     </label>
-
                     {field.type === 'text' && (
-                        <label>
-                            Значение:
-                            <input
-                                type="text"
-                                value={field.answer || ''} // Display the current answer
-                                onChange={(e) => handleFieldChange(field.id, e.target.value)} // Update the answer
-                            />
-                        </label>
+                        <>
+                            <label>
+                                Значение:
+                                <input
+                                    type="text"
+                                    value={field.answer || ''}
+                                    onChange={(e) => handleFieldChange(field.id, e.target.value)}
+                                />
+                            </label>
+                        </>
                     )}
 
                     {field.type === 'select' && (
@@ -88,7 +99,6 @@ function Edit_Mode({ formFields, tableDataArray, onDeleteField, onUpdateField, o
                             </label>
                         </>
                     )}
-
                     <button onClick={() => onDeleteField(field.id)}>Удалить</button>
                 </div>
             ))}
@@ -99,12 +109,13 @@ function Edit_Mode({ formFields, tableDataArray, onDeleteField, onUpdateField, o
                     <div key={tableIndex}>
                         <table>
                             <tbody>
-                                {tableData.map((row, rowIndex) => (
+                                {tableData.tableData.map((row, rowIndex) => (                               
                                     <tr key={rowIndex}>
                                         {row.map((cell, colIndex) => (
                                             <td key={colIndex}>
                                                 {/* Если это крайняя левая или верхняя ячейка, делаем ее редактируемой */}
                                                 {(rowIndex === 0 || colIndex === 0) ? (
+                                                    
                                                     <input
                                                         type="text"
                                                         value={cell}
@@ -112,7 +123,10 @@ function Edit_Mode({ formFields, tableDataArray, onDeleteField, onUpdateField, o
                                                     />
                                                 ) : (
                                                     /* Иначе отображаем текст */
-                                                    cell
+                                                    <input style={{pointerEvents: 'none'}}
+                                                        type="text"
+                                                        value={cell}
+                                                    />
                                                 )}
                                             </td>
                                         ))}

@@ -5,6 +5,7 @@ import DisplayModeSection from '../../Form/cp_Form/DisplayModeSection/DisplayMod
 import EditSavedForm from '../EditSavedForm/EditSavedForm';
 import './View_Form.css'; 
 
+
 function View_Form() {
     const { formId } = useParams();
     const [formData, setFormData] = useState(null);
@@ -12,8 +13,6 @@ function View_Form() {
     const [formTitle, setFormTitle] = useState('');
     const [formTag, setFormTag] = useState('');
     const [formCreatedAt, setFormCreatedAt] = useState(null);
-    const [isEditMode, setIsEditMode] = useState(false);
-    const navigate = useNavigate();
     const location = useLocation();
 
     useEffect(() => {
@@ -25,10 +24,12 @@ function View_Form() {
                 if (location.state && location.state.formData && location.state.tableData) {
                     initialFormData = location.state.formData;
                     initialTableData = location.state.tableData;
+                    console.log("View_Form: Received data from location.state:", location.state);
                     setFormData(initialFormData);
                     setTableDataArray(initialTableData);
                 } else {
                     const form = await db.get(formId);
+                    console.log("View_Form: Loaded form from PouchDB:", form);
                     initialFormData = form.formFields;
                     initialTableData = form.tableData;
                     setFormData(initialFormData);
@@ -45,53 +46,6 @@ function View_Form() {
         loadFormData();
     }, [formId, location.state]);
 
-    const toggleEditMode = () => {
-        setIsEditMode(!isEditMode);
-    };
-
-    const handleUpdateField = (fieldId, newLabel) => {
-        setFormData(prevData =>
-            prevData.map(field =>
-                field.id === fieldId ? { ...field, label: newLabel } : field
-            )
-        );
-    };
-
-    const handleUpdateOptions = (fieldId, newOptions) => {
-        setFormData(prevData =>
-            prevData.map(field =>
-                field.id === fieldId ? { ...field, options: newOptions } : field
-            )
-        );
-    };
-
-    const handleDeleteField = (fieldId) => {
-        setFormData(prevData => prevData.filter(field => field.id !== fieldId));
-    };
-
-    const handleUpdateAnswer = (fieldId, newAnswer) => {
-        setFormData(prevData =>
-            prevData.map(field =>
-                field.id === fieldId ? { ...field, answer: newAnswer } : field
-            )
-        );
-    };
-
-    const saveChanges = async () => {
-        try {
-            const doc = await db.get(formId);
-            doc.formFields = formData;
-            doc.tableData = tableDataArray;
-            doc.lastEditedAt = Date.now();
-            await db.put(doc);
-            alert('Анкета успешно обновлена!');
-            setIsEditMode(false);
-            navigate('/Saved_Form');
-        } catch (error) {
-            console.error('Error saving form:', error);
-            alert('Ошибка при сохранении анкеты!');
-        }
-    };
 
     if (!formData) {
         return <div>Загрузка...</div>;
@@ -103,18 +57,7 @@ function View_Form() {
             <p>Тег: {formTag}</p>
             <p>Дата создания: {new Date(formCreatedAt).toLocaleString()}</p>
 
-            {isEditMode ? (
-                <EditSavedForm
-                    formFields={formData}
-                    onDeleteField={handleDeleteField}
-                    onUpdateField={handleUpdateField}
-                    onUpdateOptions={handleUpdateOptions}
-                    onUpdateAnswer={handleUpdateAnswer}
-                    saveChanges={saveChanges}
-                />
-            ) : (
-                <DisplayModeSection formData={formData} handleInputChange={handleUpdateAnswer} />
-            )}
+            <DisplayModeSection formData={formData}  />
 
             {/* Display tables */}
             {tableDataArray && tableDataArray.length > 0 && (
@@ -136,10 +79,6 @@ function View_Form() {
                     </div>
                 ))
             )}
-
-            <button onClick={toggleEditMode}>
-                {isEditMode ? 'Отключить режим редактирования' : 'Включить режим редактирования'}
-            </button>
         </div>
     );
 }
