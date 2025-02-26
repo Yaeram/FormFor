@@ -3,7 +3,7 @@ import {BrowserRouter, Routes, Route} from 'react-router-dom'
 import { Main } from './pages/Page_Main/Main';
 import New_Form from './pages/New_Form/New_Form';
 import SavedForm from './pages/Saved_Form/Saved_Form';
-import Form_Template from './pages/Form_Template/Form_Template';
+import Form_Template from './pages/Form/Form_Template/Form_Template';
 import Form from './pages/Form/Form';
 import View_Form from './pages/Saved_Form/View_Form/View_Form';
 

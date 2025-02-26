@@ -20,7 +20,7 @@ function Tag({ formTitle, formData, templateId, onComplete }) {
         try {
             const formTag = generateTag();
             const filledFormData = {
-                _id: uuidv4(),
+                _id: `form_${uuidv4()}`,
                 templateId: templateId,
                 formFields: formData, //  Сохраняем formData с ответами
                 type: 'form',

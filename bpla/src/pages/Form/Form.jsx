@@ -78,7 +78,6 @@ function Form() {
     };
 
     const handleInputChange = (fieldId, value) => {
-        console.log('handleInputChange', fieldId, value);
         setFormData(prevData =>
             prevData.map(field =>
                 field.id === fieldId ? { ...field, answer: value } : field
