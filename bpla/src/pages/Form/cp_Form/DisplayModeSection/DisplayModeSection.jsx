@@ -1,7 +1,7 @@
 import React from 'react';
 import Form_Field from '../Form_Field/Form_Field';
 
-function DisplayModeSection({ formData, tableDataArray, handleInputChange, handleTableChange, isEditMode }) {
+function DisplayModeSection({ formData, tableDataArray, handleInputChange, handleTableChange, isEditMode, isNoInput }) {
     const handleTableCellChange = (tableIndex, rowIndex, colIndex, value) => {
         handleTableChange = (tableIndex, (prevTableData) => {
             const newTableData = [...prevTableData];
@@ -31,35 +31,64 @@ function DisplayModeSection({ formData, tableDataArray, handleInputChange, handl
                 <div key={field.id} className="display-mode-field">
                     <label htmlFor={field.id}>{field.label}</label>
                     {field.type === 'text' && (
+                    <div>
+                        {isNoInput &&
                         <input
                             type="text"
                             id={field.id}
                             value={field.answer || ''}
                             onChange={(e) => handleInputChange(field.id, e.target.value)}
-                        />
+                        />} 
+                        {field.answer}
+                    </div>
                     )}
                     {field.type === 'select' && (
-                        <select
-                            id={field.id}
-                            value={field.answer || ''}
-                            onChange={(e) => handleInputChange(field.id, e.target.value)}
-                        >
-                            <option value="">Выберите значение</option>
-                            {field.options && field.options.map((option, index) => (
-                                <option key={index} value={option}>{option}</option>
-                            ))}
-                        </select>
+                        
+                        <div>
+                            {isNoInput && 
+                                <select
+                                    id={field.id}
+                                    value={field.answer || ''}
+                                    onChange={(e) => handleInputChange(field.id, e.target.value)}
+                                > 
+                                    <option value="">Выберите значение</option>
+                                    {field.options && field.options.map((option, index) => (
+                                        <option key={index} value={option}>{option}</option>
+                                    ))}
+                                </select>}
+                            {field.answer}
+                        </div>
                     )}
                     {field.type === 'image' && (
                         <div>
-                            <label>Фотография:</label>
+                            {isNoInput &&
                             <input
                                 type="file"
                                 accept="image/*"
                                 onChange={(e) => handleImageUpload(field.id, e)}
-                            />
+                            />}
                             {field.answer && (
                                 <img src={field.answer} alt="Uploaded" style={{ maxWidth: '200px' }} />
+                            )}
+                        </div>
+                    )}
+
+                    {field.type === 'video' && (
+                        <div>
+                            {isNoInput && 
+                                <input
+                                type="file"
+                                accept="video/mp4, video/webm, video/ogg, video/x-matroska"
+                                onChange={(e) => handleImageUpload(field.id, e)}
+                            />}
+                            {field.answer && (
+                                <video width="320" height="240" controls poster='Видео загружается' muted>
+                                    <source src={field.answer} alt="Uploaded" type='video/x-matroska' ></source>
+                                    <source src={field.answer} alt="Uploaded" type='video/mp4'></source>
+                                    <source src={field.answer} alt="Uploaded" type='video/ogg'></source>
+                                    <source src={field.answer} alt="Uploaded" type='video/webm'></source>
+                                    Your browser does not support a video tag!
+                                </video>
                             )}
                         </div>
                     )}

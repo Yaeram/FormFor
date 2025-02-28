@@ -143,12 +143,12 @@ function Edit_Mode({ formFields, tableDataArray, onDeleteField, onUpdateField, o
                             <label>Видео:</label>
                             <input
                                 type="file"
-                                accept="video/*"
+                                accept="video/mp4, video/webm, video/ogg, video/x-matroska"
                                 onChange={(e) => handleVideoUpload(field.id, e)}
                             />
                             {field.answer && (
                                 <video width="320" height="240" controls>
-                                    <source src={field.answer} type="video/mp4" />
+                                    <source src={field.answer}/>
                                     Your browser does not support the video tag.
                                 </video>
                             )}

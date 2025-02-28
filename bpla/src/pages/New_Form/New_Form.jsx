@@ -19,7 +19,7 @@ function New_Form() {
     const [newTableCols, setNewTableCols] = useState(3);
     const navigate = useNavigate();
     const [templateTitle, setTemplateTitle] = useState('');
-
+    //
     const generateTag = () => {
         const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
         let tag = '';
@@ -57,7 +57,7 @@ function New_Form() {
 
     const addField = (newField) => {
         if (newField.type === 'select' && (newField.selectType === 'image' || newField.selectType === 'video')) {
-            const newFields = newField.options.map(option => ({
+                const newFields = newField.options.map(option => ({
                 id: uuidv4(),
                 label: newField.label,
                 type: newField.selectType,

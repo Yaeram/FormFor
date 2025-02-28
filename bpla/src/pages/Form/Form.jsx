@@ -232,6 +232,7 @@ function Form() {
                         tableDataArray={tableDataArray}
                         handleInputChange={handleInputChange}
                         onUpdateTable={handleUpdateTable}
+                        isNoInput={true}
                     />
                 )}
 
