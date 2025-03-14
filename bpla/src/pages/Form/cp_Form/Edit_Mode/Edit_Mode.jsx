@@ -60,7 +60,6 @@ function Edit_Mode({ formFields, tableDataArray, onDeleteField, onUpdateField, o
         }
 
         updatedTableDataArray[tableIndex].tableData[rowIndex][colIndex] = value;
-        console.log(value)
         onUpdateTable(tableIndex, updatedTableDataArray[tableIndex]);
     };
 

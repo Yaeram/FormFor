@@ -11,7 +11,6 @@ import AddSelectField from '../New_Form/cp_NForm/Form/AddSelectField';
 import AddTextField from '../New_Form/cp_NForm/Form/AddTextField';
 import Table_Form from '../New_Form/cp_NForm/Table_Form/Table_Form';
 import { v4 as uuidv4 } from 'uuid';
-import Form_Field from './cp_Form/Form_Field/Form_Field';
 import Tag from './cp_Form/Tag/Tag';
 import './Form.css';
 
@@ -47,6 +46,7 @@ function Form() {
                     // Initialize form data with empty answers
                     const initialFormData = template.formFields.map(field => ({ ...field, answer: '' }));
                     setFormData(initialFormData);
+                    console.log(formData)
                     originalFormDataRef.current = initialFormData;
                 } else {
                     console.warn("Template has no formFields, or it's not an array.");
@@ -219,7 +219,6 @@ function Form() {
                             onUpdateOptions={handleUpdateOptions}
                             onDeleteTable={handleDeleteTable}
                             onUpdateTable={handleUpdateTable}
-                            handleInputChange={handleInputChange}
                         />
                         <AddTextField onAddField={handleAddField} />
                         <AddSelectField onAddField={handleAddField} />
@@ -231,8 +230,9 @@ function Form() {
                         formData={formData}
                         tableDataArray={tableDataArray}
                         handleInputChange={handleInputChange}
+
                         onUpdateTable={handleUpdateTable}
-                        isNoInput={true}
+                        canEdit={true}
                     />
                 )}
 

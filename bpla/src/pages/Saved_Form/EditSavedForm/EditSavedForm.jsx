@@ -1,15 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import './EditSavedForm.css';
-import DisplayModeSection from '../../Form/cp_Form/DisplayModeSection/DisplayModeSection';
 
-function EditSavedForm({ formFields, onUpdateField, onUpdateOptions, onDeleteField, onUpdateAnswer, saveChanges }) {
+function EditSavedForm({
+    formFields,
+    onUpdateField,
+    onUpdateOptions,
+    onDeleteField,
+    onUpdateAnswer,
+    saveChanges,
+}) {
     const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
-    const [previewFormData, setPreviewFormData] = useState([...formFields]);
     const [currentFormFields, setCurrentFormFields] = useState([...formFields]);
 
     useEffect(() => {
-        setPreviewFormData([...currentFormFields]);
-    }, [currentFormFields]);
+        setCurrentFormFields([...formFields]);
+    }, [formFields]);
 
     const handleAddOption = (fieldId) => {
         const updatedFields = currentFormFields.map(field =>
@@ -54,7 +59,6 @@ function EditSavedForm({ formFields, onUpdateField, onUpdateOptions, onDeleteFie
     };
 
     const handleSaveChangesClick = () => {
-        setPreviewFormData([...currentFormFields]);
         setIsConfirmationOpen(true);
     };
 
@@ -83,7 +87,7 @@ function EditSavedForm({ formFields, onUpdateField, onUpdateOptions, onDeleteFie
 
     return (
         <div className="edit-saved-form-container">
-            {formFields && currentFormFields.map(field => (
+            {currentFormFields.map(field => (
                 <div key={field.id} className="edit-saved-form-field">
                     <label>
                         Метка поля:
@@ -136,24 +140,23 @@ function EditSavedForm({ formFields, onUpdateField, onUpdateOptions, onDeleteFie
                         </div>
                     )}
 
-                    <button type="button" onClick={() => onDeleteField(field.id)}>Удалить поле</button>
+                    <button type="button" onClick={() => handleDelete(field.id)}>Удалить поле</button>
                 </div>
             ))}
             <button type="button" onClick={handleSaveChangesClick}>Сохранить изменения</button>
 
-                         {isConfirmationOpen && (
-                    <div>
-                        <h2>Предварительный просмотр</h2>
-                        <span>
+            {isConfirmationOpen && (
+                <div>
+                    <h2>Предварительный просмотр</h2>
+                    <span>
                         Вы уверены, что хотите сохранить изменения?
-                        Сохранить
-                        Отмена
-                        </span>
-                    </div>             
+                        <button onClick={handleConfirmSave}>Сохранить</button>
+                        <button onClick={handleCancelSave}>Отмена</button>
+                    </span>
+                </div>
             )}
         </div>
     );
 }
 
 export default EditSavedForm;
-

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AddSelectField from './cp_NForm/Form/AddSelectField';
 import AddTextField from './cp_NForm/Form/AddTextField';
@@ -55,24 +55,14 @@ function New_Form() {
         setTableDataArray(newTableDataArray);
     };
 
-    const addField = (newField) => {
-        if (newField.type === 'select' && (newField.selectType === 'image' || newField.selectType === 'video')) {
-                const newFields = newField.options.map(option => ({
-                id: uuidv4(),
-                label: newField.label,
-                type: newField.selectType,
-                value: null,
-                relatedOption: option,
-            }));
-            setFormFields([...formFields, ...newFields]);
-        } else {
-            let initialValue = '';
-            if (newField.type === 'image' || newField.type === 'video') {
-                initialValue = null;
-            }
-            setFormFields([...formFields, { ...newField, id: uuidv4(), value: initialValue }]);
+    const addField = (newField) => { 
+        let initialValue = '';
+        if (newField.type === 'image' || newField.type === 'video') {
+            initialValue = null;
         }
+        setFormFields([...formFields, { ...newField, id: uuidv4(), value: initialValue }]);
     };
+
 
     const handleFileChange = (fieldId, file) => {
         if (!file) {
@@ -155,11 +145,12 @@ function New_Form() {
                                 onChange={(e) => setTemplateTitle(e.target.value)}
                             />
                         </label>
-                        <AddTextField onAddField={addField} />
-                        <AddSelectField onAddField={addField} />
-
+                        <div className='new-form-non-table-creations'>
+                            <AddTextField onAddField={addField} />
+                            <AddSelectField onAddField={addField} />
+                        </div>
+                    
                         <button onClick={handleShowTableCreation}>Создать таблицу</button>
-
                         {isTableCreationVisible && (
                             <div className="table-creation-settings">
                                 <label>

@@ -3,6 +3,7 @@
     flex-direction: column;
     gap: 10px;
     margin-bottom: 20px;
+    flex: 1;
   }
   
   .add-select-field label {

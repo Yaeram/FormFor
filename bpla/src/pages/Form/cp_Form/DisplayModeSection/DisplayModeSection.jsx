@@ -1,7 +1,6 @@
 import React from 'react';
-import Form_Field from '../Form_Field/Form_Field';
 
-function DisplayModeSection({ formData, tableDataArray, handleInputChange, handleTableChange, isEditMode, isNoInput }) {
+function DisplayModeSection({ formData, tableDataArray, handleImageSelectChange, handleInputChange, handleTableChange, isEditMode, canEdit }) {
     const handleTableCellChange = (tableIndex, rowIndex, colIndex, value) => {
         handleTableChange = (tableIndex, (prevTableData) => {
             const newTableData = [...prevTableData];
@@ -13,15 +12,24 @@ function DisplayModeSection({ formData, tableDataArray, handleInputChange, handl
     };
 
     const handleImageUpload = (fieldId, event) => {
-        const file = event.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                const base64String = reader.result;
-                // Сохраняем base64 строку в состоянии формы
-                handleInputChange(fieldId, base64String);
-            };
-            reader.readAsDataURL(file);
+        const files = event.target.files; // Получаем все выбранные файлы
+        if (files && files.length > 0) {
+            const readers = [];
+            const base64Strings = [];
+    
+            // Обрабатываем каждый файл
+            for (let i = 0; i < files.length; i++) {
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                    base64Strings.push(reader.result); // Сохраняем base64 строку
+    
+                    // Если все файлы обработаны, обновляем состояние
+                    if (base64Strings.length === files.length) {
+                        handleInputChange(fieldId, base64Strings);
+                    }
+                };
+                reader.readAsDataURL(files[i]); // Читаем файл как Data URL
+            }
         }
     };
 
@@ -32,7 +40,7 @@ function DisplayModeSection({ formData, tableDataArray, handleInputChange, handl
                     <label htmlFor={field.id}>{field.label}</label>
                     {field.type === 'text' && (
                     <div>
-                        {isNoInput &&
+                        {canEdit &&
                         <input
                             type="text"
                             id={field.id}
@@ -42,10 +50,9 @@ function DisplayModeSection({ formData, tableDataArray, handleInputChange, handl
                         {field.answer}
                     </div>
                     )}
-                    {field.type === 'select' && (
-                        
+                    {field.type === 'select' && (                       
                         <div>
-                            {isNoInput && 
+                            {canEdit && 
                                 <select
                                     id={field.id}
                                     value={field.answer || ''}
@@ -61,40 +68,56 @@ function DisplayModeSection({ formData, tableDataArray, handleInputChange, handl
                     )}
                     {field.type === 'image' && (
                         <div>
-                            {isNoInput &&
-                            <input
-                                type="file"
-                                accept="image/*"
-                                onChange={(e) => handleImageUpload(field.id, e)}
-                            />}
+                            {canEdit && (
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    multiple // Разрешаем выбор нескольких файлов
+                                    onChange={(e) => handleImageUpload(field.id, e)}
+                                />
+                            )}
                             {field.answer && (
-                                <img src={field.answer} alt="Uploaded" style={{ maxWidth: '200px' }} />
+                                <div>
+                                    {field.answer.map((image, index) => (
+                                        <img
+                                            key={index}
+                                            src={image}
+                                            alt={`Uploaded ${index}`}
+                                            style={{ maxWidth: '200px', margin: '5px' }}
+                                        />
+                                    ))}
+                                </div>
                             )}
                         </div>
                     )}
 
                     {field.type === 'video' && (
                         <div>
-                            {isNoInput && 
+                            {canEdit && (
                                 <input
-                                type="file"
-                                accept="video/mp4, video/webm, video/ogg, video/x-matroska"
-                                onChange={(e) => handleImageUpload(field.id, e)}
-                            />}
+                                    type="file"
+                                    accept="video/mp4, video/webm, video/ogg, video/x-matroska"
+                                    multiple // Разрешаем выбор нескольких файлов
+                                    onChange={(e) => handleImageUpload(field.id, e)}
+                                />
+                            )}
                             {field.answer && (
-                                <video width="320" height="240" controls poster='Видео загружается' muted>
-                                    <source src={field.answer} alt="Uploaded" type='video/x-matroska' ></source>
-                                    <source src={field.answer} alt="Uploaded" type='video/mp4'></source>
-                                    <source src={field.answer} alt="Uploaded" type='video/ogg'></source>
-                                    <source src={field.answer} alt="Uploaded" type='video/webm'></source>
-                                    Your browser does not support a video tag!
-                                </video>
+                                <div>
+                                    {field.answer.map((video) => (
+                                        <video width="320" height="240" controls poster='Видео загружается' muted>
+                                            <source src={video} alt="Uploaded" type='video/x-matroska'autoplay="autoplay"></source>
+                                            <source src={video} alt="Uploaded" type='video/mp4' autoplay="autoplay"></source>
+                                            <source src={video} alt="Uploaded" type='video/ogg' autoplay="autoplay"></source>
+                                            <source src={video} alt="Uploaded" type='video/webm' autoplay="autoplay"></source>
+                                            Your browser does not support a video tag!
+                                        </video>
+                                    ))}
+                                </div>
                             )}
                         </div>
                     )}
                 </div>
             ))}
-            {console.log(tableDataArray)}
             {tableDataArray && tableDataArray.length > 0 && (
                 <div className="table-container">
                     {tableDataArray.map((table, tableIndex) => {

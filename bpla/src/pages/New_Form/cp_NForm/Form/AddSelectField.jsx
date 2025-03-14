@@ -5,7 +5,6 @@ function AddSelectField({ onAddField }) {
   const [label, setLabel] = useState('');
   const [options, setOptions] = useState([]);
   const [newOption, setNewOption] = useState('');
-  const [selectType, setSelectType] = useState('text'); // Тип для вариантов: text, image, video
 
   const handleLabelChange = (e) => setLabel(e.target.value);
   const handleOptionChange = (index, e) => {
@@ -38,11 +37,9 @@ function AddSelectField({ onAddField }) {
               label: label,
               type: 'select',
               options: validOptions,
-              selectType: selectType, // Передаем тип для вариантов
           });
           setLabel('');
           setOptions([]);
-          setSelectType('text'); // Сбрасываем тип для вариантов к значению по умолчанию
       }
   };
 
@@ -73,14 +70,6 @@ function AddSelectField({ onAddField }) {
               />
               <button type="button" onClick={handleAddOption}>Добавить вариант</button>
           </div>
-          <label>
-              Тип для вариантов:
-              <select value={selectType} onChange={(e) => setSelectType(e.target.value)}>
-                  <option value="text">Текст</option>
-                  <option value="image">Изображение</option>
-                  <option value="video">Видео</option>
-              </select>
-          </label>
           <button type="submit">Добавить поле выбора</button>
       </form>
   );

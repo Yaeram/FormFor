@@ -7,6 +7,7 @@ function FormPreview({ formFields, tableDataArray, onDeleteField, onDeleteTable,
         <div className="form-preview">
             <h3>Предварительный просмотр формы</h3>
             {formFields.map((field) => (
+
                 <div key={field.id} className="form-field-preview">
                     <label>{field.label}:</label>
                     {field.type === 'text' && <input type="text" />}

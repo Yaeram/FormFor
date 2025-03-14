@@ -3,6 +3,7 @@
     flex-direction: column;
     gap: 10px;
     margin-bottom: 10px;
+    flex: 1;
   }
   
   .add-text-field label {

@@ -22,7 +22,6 @@ function Saved_Form() {
                     startkey: 'form_',
                     endkey: 'form_\uffff'
                 });
-                console.log(forms)
                 const sortedForms = forms.rows.map(row => row.doc).sort((a, b) => b.createdAt - a.createdAt);
                 setSavedForms(sortedForms);
             } catch (error) {
