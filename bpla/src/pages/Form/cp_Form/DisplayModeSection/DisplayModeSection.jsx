@@ -78,6 +78,7 @@ function DisplayModeSection({ formData, tableDataArray, handleImageSelectChange,
                             )}
                             {field.answer && (
                                 <div>
+                                    {console.log(field)}
                                     {field.answer.map((image, index) => (
                                         <img
                                             key={index}
