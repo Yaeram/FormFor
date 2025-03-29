@@ -131,9 +131,9 @@ function New_Form() {
     };
 
     return (
-        <div className="new-form-container">
+        <div className="new-template-page">
             <Header />
-            <div style={{ flex: 4, marginBottom: 20 }}>
+            <div className='new-template-container'>
                 <h2>Создать новый шаблон анкеты</h2>
                 <div className="new-form-content">
                     <div className="new-form-creation">
@@ -150,7 +150,7 @@ function New_Form() {
                             <AddSelectField onAddField={addField} />
                         </div>
                     
-                        <button onClick={handleShowTableCreation}>Создать таблицу</button>
+                        {/* <button onClick={handleShowTableCreation}>Создать таблицу</button>
                         {isTableCreationVisible && (
                             <div className="table-creation-settings">
                                 <label>
@@ -179,18 +179,17 @@ function New_Form() {
                                 </label>
                                 <button onClick={handleAddTable}>Добавить таблицу</button>
                             </div>
-                        )}
-
-                        {/* FormPreview здесь */}
-                        <FormPreview
+                        )} */}
+                    </div>
+                    <FormPreview
                             formFields={formFields}
                             tableDataArray={tableDataArray}
                             onDeleteField={handleDeleteField}
                             onDeleteTable={handleDeleteTable}
                             handleFileChange={handleFileChange}
-                            onTableChange={handleTableChange}  //  <----  ОЧЕНЬ ВАЖНО
+                            onTableChange={handleTableChange}
+                            templateTitle={templateTitle}
                         />
-                    </div>
                 </div>
                 <button onClick={saveTemplate}>Сохранить шаблон</button>
             </div>

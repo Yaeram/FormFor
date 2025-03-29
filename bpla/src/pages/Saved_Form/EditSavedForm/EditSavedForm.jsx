@@ -1,16 +1,45 @@
 import React, { useState, useEffect } from 'react';
 import './EditSavedForm.css';
-import ConfirmationDialog from '../../Form/cp_Form/Confirmation_Dialog/Confirmation_Dialog'; // Импортируем ConfirmationDialog
+import ConfirmationDialog from '../../Form/cp_Form/Confirmation_Dialog/Confirmation_Dialog';
+import { v4 as uuidv4 } from 'uuid';
 
 function EditSavedForm({
-    formFields,
-    onUpdateField,
-    onUpdateOptions,
-    onDeleteField,
-    onUpdateAnswer,
-    saveChanges,
+    formFields = [],
+    onUpdateField = () => {},
+    onUpdateOptions = () => {},
+    onDeleteField = () => {},
+    onUpdateAnswer = () => {},
+    saveChanges = () => {},
 }) {
-    const [currentFormFields, setCurrentFormFields] = useState([...formFields]);
+    // Функция для инициализации значений по умолчанию
+    const initializeField = (field) => ({
+        id: field.id || uuidv4(),
+        type: field.type || 'text',
+        label: field.label || '',
+        options: Array.isArray(field.options) ? field.options : [],
+        answer: getDefaultAnswer(field.type, field.answer)
+    });
+
+    // Функция определения значения по умолчанию для answer
+    function getDefaultAnswer(type, answer) {
+        switch (type) {
+            case 'image':
+                return Array.isArray(answer) ? answer : [];
+            case 'video':
+                return answer && typeof answer === 'object' && Array.isArray(answer.videos) 
+                    ? answer 
+                    : { videos: [] };
+            case 'select':
+                return answer || '';
+            default:
+                return answer !== undefined ? answer : '';
+        }
+    }
+
+    const [currentFormFields, setCurrentFormFields] = useState(
+        formFields.map(initializeField)
+    );
+
     const [confirmationDialog, setConfirmationDialog] = useState({
         isOpen: false,
         message: '',
@@ -19,19 +48,20 @@ function EditSavedForm({
     });
 
     useEffect(() => {
-        setCurrentFormFields([...formFields]);
+        setCurrentFormFields(formFields.map(initializeField));
     }, [formFields]);
 
-    // Обработка добавления опции
     const handleAddOption = (fieldId) => {
         const updatedFields = currentFormFields.map(field =>
-            field.id === fieldId ? { ...field, options: [...field.options, ''] } : field
+            field.id === fieldId ? { 
+                ...field, 
+                options: [...field.options, ''] 
+            } : field
         );
         setCurrentFormFields(updatedFields);
         onUpdateOptions(fieldId, updatedFields.find(f => f.id === fieldId).options);
     };
 
-    // Обработка изменения опции
     const handleOptionChange = (fieldId, index, value) => {
         const updatedFields = currentFormFields.map(field => {
             if (field.id === fieldId) {
@@ -45,12 +75,10 @@ function EditSavedForm({
         onUpdateOptions(fieldId, updatedFields.find(f => f.id === fieldId).options);
     };
 
-    // Обработка удаления опции
     const handleRemoveOption = (fieldId, index) => {
         const updatedFields = currentFormFields.map(field => {
             if (field.id === fieldId) {
-                const newOptions = [...field.options];
-                newOptions.splice(index, 1);
+                const newOptions = field.options.filter((_, i) => i !== index);
                 return { ...field, options: newOptions };
             }
             return field;
@@ -59,97 +87,117 @@ function EditSavedForm({
         onUpdateOptions(fieldId, updatedFields.find(f => f.id === fieldId).options);
     };
 
-    // Обработка изменения ответа
     const handleAnswerChange = (fieldId, value) => {
         const updatedFields = currentFormFields.map(field =>
-            field.id === fieldId ? { ...field, answer: value } : field
+            field.id === fieldId ? { 
+                ...field, 
+                answer: value !== undefined ? value : getDefaultAnswer(field.type, value)
+            } : field
         );
-        setCurrentFormFields(updatedFields);
-        onUpdateAnswer(fieldId, value);
-    };
-
-    // Обработка загрузки изображений
-    const handleImageUpload = (fieldId, event) => {
-        const files = event.target.files;
-        if (files && files.length > 0) {
-            const readers = [];
-            const base64Strings = [];
-
-            for (let i = 0; i < files.length; i++) {
-                const reader = new FileReader();
-                reader.onloadend = () => {
-                    base64Strings.push(reader.result);
-
-                    if (base64Strings.length === files.length) {
-                        handleAnswerChange(fieldId, base64Strings);
-                    }
-                };
-                reader.readAsDataURL(files[i]);
-            }
-        }
-    };
-
-    // Обработка загрузки видео
-    const handleVideoUpload = (fieldId, files) => {
-        const newVideos = Array.from(files).map(file => URL.createObjectURL(file));
-        const updatedFields = currentFormFields.map(field => {
-            if (field.id === fieldId) {
-                const updatedVideos = [...(field.answer?.videos || []), ...newVideos];
-                return { ...field, answer: { ...field.answer, videos: updatedVideos } };
-            }
-            return field;
-        });
         setCurrentFormFields(updatedFields);
         onUpdateAnswer(fieldId, updatedFields.find(f => f.id === fieldId).answer);
     };
 
-    // Обработка сохранения изменений
+    const handleImageUpload = (fieldId, event) => {
+        const files = Array.from(event.target.files || []);
+        if (files.length === 0) return;
+
+        const field = currentFormFields.find(f => f.id === fieldId);
+        const currentImages = Array.isArray(field?.answer) ? field.answer : [];
+
+        const newImages = [];
+        let loadedCount = 0;
+
+        files.forEach(file => {
+            if (!file.type.match('image.*')) return;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                newImages.push(e.target.result);
+                loadedCount++;
+
+                if (loadedCount === files.length) {
+                    // handleAnswerChange(fieldId, [...currentImages, ...newImages]);
+                    handleAnswerChange(fieldId, [...newImages] )
+                }
+            };
+            reader.readAsDataURL(file);
+        });
+    };
+
+    const handleVideoUpload = (fieldId, event) => {
+        const files = Array.from(event.target.files || []);
+        if (files.length === 0) return;
+
+        const field = currentFormFields.find(f => f.id === fieldId);
+        const currentVideos = (field?.answer?.videos || []);
+
+        const newVideos = files
+            .filter(file => file.type.match('video.*'))
+            .map(file => URL.createObjectURL(file));
+
+        if (newVideos.length > 0) {
+            handleAnswerChange(fieldId, {
+                ...(field?.answer || {}),
+                videos: [...currentVideos, ...newVideos]
+            });
+        }
+    };
+
+    const handleUpdateLabel = (fieldId, newLabel) => {
+        const updatedFields = currentFormFields.map(field =>
+            field.id === fieldId ? { ...field, label: newLabel || '' } : field
+        );
+        setCurrentFormFields(updatedFields);
+        onUpdateField(fieldId, newLabel || '');
+    };
+
+    const handleDelete = (fieldId) => {
+        setConfirmationDialog({
+            isOpen: true,
+            message: 'Вы уверены, что хотите удалить это поле?',
+            onConfirm: () => {
+                const updatedFields = currentFormFields.filter(field => field.id !== fieldId);
+                setCurrentFormFields(updatedFields);
+                onDeleteField(fieldId);
+                setConfirmationDialog({ ...confirmationDialog, isOpen: false });
+            },
+            onClose: () => setConfirmationDialog({ ...confirmationDialog, isOpen: false })
+        });
+    };
+
     const handleSaveChangesClick = () => {
         setConfirmationDialog({
             isOpen: true,
             message: 'Вы уверены, что хотите сохранить изменения?',
-            onConfirm: handleConfirmSave,
-            onClose: handleCancelSave,
+            onConfirm: () => {
+                saveChanges();
+                setConfirmationDialog({ ...confirmationDialog, isOpen: false });
+            },
+            onClose: () => setConfirmationDialog({ ...confirmationDialog, isOpen: false })
         });
-    };
-
-    const handleConfirmSave = () => {
-        saveChanges();
-        setConfirmationDialog({ ...confirmationDialog, isOpen: false });
-    };
-
-    const handleCancelSave = () => {
-        setConfirmationDialog({ ...confirmationDialog, isOpen: false });
-    };
-
-    // Обработка изменения метки поля
-    const handleUpdateLabel = (fieldId, newLabel) => {
-        const updatedFields = currentFormFields.map(field =>
-            field.id === fieldId ? { ...field, label: newLabel } : field
-        );
-        setCurrentFormFields(updatedFields);
-        onUpdateField(fieldId, newLabel);
-    };
-
-    // Обработка удаления поля
-    const handleDelete = (fieldId) => {
-        const updatedFields = currentFormFields.filter(field => field.id !== fieldId);
-        setCurrentFormFields(updatedFields);
-        onDeleteField(fieldId);
     };
 
     return (
         <div className="edit-saved-form-container">
             {currentFormFields.map(field => (
                 <div key={field.id} className="edit-saved-form-field">
-                    <label>
-                        Метка поля:
-                        <input
-                            type="text"
-                            value={field.label}
-                            onChange={(e) => handleUpdateLabel(field.id, e.target.value)}
-                        />
-                    </label>
+                    <div className="field-header">
+                        <label>
+                            Метка поля:
+                            <input
+                                type="text"
+                                value={field.label || ''}
+                                onChange={(e) => handleUpdateLabel(field.id, e.target.value)}
+                            />
+                        </label>
+                        <button 
+                            className="delete-field-btn"
+                            onClick={() => handleDelete(field.id)}
+                        >
+                            Удалить поле
+                        </button>
+                    </div>
 
                     {field.type === 'text' && (
                         <label>
@@ -163,40 +211,50 @@ function EditSavedForm({
                     )}
 
                     {field.type === 'select' && (
-                        <div>
-                            <label>Опции:</label>
+                        <div className="select-field">
+                            <label>Опции выбора:</label>
                             <select
                                 value={field.answer || ''}
                                 onChange={(e) => handleAnswerChange(field.id, e.target.value)}
                             >
                                 <option value="">Выберите значение</option>
-                                {field.options && field.options.map((option, index) => (
-                                    <option key={index} value={option}>{option}</option>
+                                {field.options.map((option, index) => (
+                                    <option key={index} value={option}>
+                                        {option || `Опция ${index + 1}`}
+                                    </option>
                                 ))}
                             </select>
 
-                            {field.options && field.options.map((option, index) => (
-                                <div key={index} className="option-row">
-                                    <input
-                                        type="text"
-                                        value={option}
-                                        onChange={(e) => handleOptionChange(field.id, index, e.target.value)}
-                                    />
-                                    <button type="button" onClick={() => handleRemoveOption(field.id, index)}>
-                                        Удалить
-                                    </button>
-                                </div>
-                            ))}
-                            <button type="button" onClick={() => handleAddOption(field.id)}>
-                                Добавить опцию
+                            <div className="options-list">
+                                {field.options.map((option, index) => (
+                                    <div key={index} className="option-item">
+                                        <input
+                                            type="text"
+                                            value={option || ''}
+                                            onChange={(e) => handleOptionChange(field.id, index, e.target.value)}
+                                        />
+                                        <button 
+                                            className="remove-option-btn"
+                                            onClick={() => handleRemoveOption(field.id, index)}
+                                        >
+                                            ×
+                                        </button>
+                                    </div>
+                                ))}
+                            </div>
+                            <button 
+                                className="add-option-btn"
+                                onClick={() => handleAddOption(field.id)}
+                            >
+                                + Добавить опцию
                             </button>
                         </div>
                     )}
 
                     {field.type === 'image' && (
-                        <div>
+                        <div className="image-field">
                             <label>
-                                Загрузите изображения:
+                                Загрузить изображения:
                                 <input
                                     type="file"
                                     accept="image/*"
@@ -204,13 +262,16 @@ function EditSavedForm({
                                     onChange={(e) => handleImageUpload(field.id, e)}
                                 />
                             </label>
-                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginTop: '10px' }}>
-                                {field.answer?.map((image, index) => (
-                                    <div key={index} style={{ position: 'relative' }}>
-                                        <img
-                                            src={image}
-                                            alt={`Preview ${index}`}
-                                            style={{ width: '100px', height: '100px', objectFit: 'cover' }}
+                            <div className="image-preview">
+                                {(field.answer || []).map((image, index) => (
+                                    <div key={index} className="image-thumbnail">
+                                        <img 
+                                            src={image} 
+                                            alt={`Изображение ${index + 1}`} 
+                                            onError={(e) => {
+                                                e.target.src = 'placeholder-image-url';
+                                                e.target.alt = 'Не удалось загрузить изображение';
+                                            }}
                                         />
                                     </div>
                                 ))}
@@ -219,38 +280,40 @@ function EditSavedForm({
                     )}
 
                     {field.type === 'video' && (
-                        <div>
+                        <div className="video-field">
                             <label>
-                                Загрузите видео:
+                                Загрузить видео:
                                 <input
                                     type="file"
                                     accept="video/*"
                                     multiple
-                                    onChange={(e) => handleVideoUpload(field.id, e.target.files)}
+                                    onChange={(e) => handleVideoUpload(field.id, e)}
                                 />
                             </label>
-                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginTop: '10px' }}>
-                                {field.answer?.videos?.map((video, index) => (
-                                    <div key={index} style={{ position: 'relative' }}>
-                                        <video
-                                            controls
-                                            style={{ width: '150px', height: 'auto' }}
-                                        >
+                            <div className="video-preview">
+                                {((field.answer || {}).videos || []).map((video, index) => (
+                                    <div key={index} className="video-thumbnail">
+                                        <video controls>
                                             <source src={video} type="video/mp4" />
-                                            Ваш браузер не поддерживает видео тег.
+                                            Ваш браузер не поддерживает видео
                                         </video>
                                     </div>
                                 ))}
                             </div>
                         </div>
                     )}
-
-                    <button type="button" onClick={() => handleDelete(field.id)}>Удалить поле</button>
                 </div>
             ))}
-            <button type="button" onClick={handleSaveChangesClick}>Сохранить изменения</button>
 
-            {/* Используем ConfirmationDialog для подтверждения сохранения */}
+            <div className="form-actions">
+                <button 
+                    className="save-changes-btn"
+                    onClick={handleSaveChangesClick}
+                >
+                    Сохранить изменения
+                </button>
+            </div>
+
             <ConfirmationDialog
                 isOpen={confirmationDialog.isOpen}
                 message={confirmationDialog.message}

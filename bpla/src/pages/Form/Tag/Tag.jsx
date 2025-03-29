@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import db from '../../../../PouchDB/pouchdb';
+import db from '../../../PouchDB/pouchdb';
 
 function Tag({ formTitle, formData, templateId, onComplete }) {
     const [isGenerating, setIsGenerating] = useState(false);

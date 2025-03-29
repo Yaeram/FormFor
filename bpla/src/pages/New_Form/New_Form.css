@@ -1,63 +1,65 @@
-
-.new_form-page {
-    flex: 4;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    background-color: rgb(87, 78, 78);
+.new-template-page {
+  display: flex; 
+  flex-direction: column;
+  height: 100vh;
+  gap: 2vh;
 }
-.new-form-container {
-    display: flex; 
-    flex-direction: column;
-    height: 100vh;
-  }
 
+.new-template-container {
+  flex: 4;
+  display: flex;
+  flex-direction: column;
+  gap: 2vh;
+  align-items: center;
+}
 
-  .new-form-content {
-    display: flex; 
-    flex: 1; 
-  }
-  
-
-  .new-form-creation {
-    flex: 1; 
-    padding: 20px;
-    border-right: 1px solid #ccc;
-  }
-
-  .new-form-non-table-creations {
-    display: flex;
-    flex-direction: row;
-    gap: 5vw;
-  }
-  
-
-  .form-preview-container {
-    flex: 1; 
-    padding: 20px;
-  }
-  
-
-  label {
-    display: block;
-    margin-bottom: 5px;
-  }
-  
-  input[type="text"] {
-    width: 100%;
-    padding: 8px;
-    margin-bottom: 10px;
-    box-sizing: border-box; 
+.new-form-content {
+  display: flex;
+  flex-direction: row; 
+  flex: 1; 
+  width: 100%;
 }
   
-  button {
-    padding: 10px;
-    background-color: #8a8a8a;
-    color: white;
-    border: none;
-    cursor: pointer;
-  }
+.new-form-creation {
+  flex: 1; 
+  padding: 20px;
+  border-right: 1px solid #ccc;
+}
+
+.new-form-non-table-creations {
+  display: flex;
+  flex-direction: row;
+  gap: 5vw;
+}
   
-  button:hover {
-    background-color: #242524;
-  }
+
+.form-preview-container {
+  flex: 1; 
+  padding: 20px;
+}
+  
+
+label {
+  display: block;
+  margin-bottom: 5px;
+}
+  
+input[type="text"] {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 10px;
+  box-sizing: border-box; 
+}
+  
+button {
+  padding: 10px;
+  background-color: #8a8a8a;
+  color: white;
+  border: none;
+  cursor: pointer;
+  width: fit-content;
+}
+  
+button:hover {
+  background-color: #242524;
+}

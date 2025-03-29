@@ -2,10 +2,10 @@ import React, { useRef } from 'react';
 import Table_Form from '../Table_Form/Table_Form';
 import './FormPreview.css';
 
-function FormPreview({ formFields, tableDataArray, onDeleteField, onDeleteTable, handleFileChange, onTableChange }) {
+function FormPreview({ formFields, tableDataArray, onDeleteField, onDeleteTable, handleFileChange, onTableChange, templateTitle }) {
     return (
         <div className="form-preview">
-            <h3>Предварительный просмотр формы</h3>
+            <h3>Предварительный просмотр шаблона {templateTitle}</h3>
             {formFields.map((field) => (
 
                 <div key={field.id} className="form-field-preview">

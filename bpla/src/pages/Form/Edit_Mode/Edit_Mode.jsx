@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import './Edit_Mode.css';
 
 function Edit_Mode({ formFields, tableDataArray, onDeleteField, onUpdateField, onUpdateOptions, onDeleteTable, onUpdateTable, handleInputChange }) {
+    console.log(formFields)
     const [newOption, setNewOption] = useState('');
 
     const handleLabelChange = (event, fieldId) => {
@@ -18,7 +19,6 @@ function Edit_Mode({ formFields, tableDataArray, onDeleteField, onUpdateField, o
         onUpdateOptions(fieldId, updatedOptions);
     };
 
-    // Add this function
     const handleFieldChange = (fieldId, value) => {
         handleInputChange(fieldId, value);
     };
@@ -29,7 +29,6 @@ function Edit_Mode({ formFields, tableDataArray, onDeleteField, onUpdateField, o
             const reader = new FileReader();
             reader.onloadend = () => {
                 const base64String = reader.result;
-                // Сохраняем base64 строку в состоянии формы
                 handleFieldChange(fieldId, base64String);
             };
             reader.readAsDataURL(file);
@@ -42,7 +41,6 @@ function Edit_Mode({ formFields, tableDataArray, onDeleteField, onUpdateField, o
             const reader = new FileReader();
             reader.onloadend = () => {
                 const base64String = reader.result;
-                // Сохраняем base64 строку в состоянии формы
                 handleFieldChange(fieldId, base64String);
             };
             reader.readAsDataURL(file);
@@ -71,7 +69,7 @@ function Edit_Mode({ formFields, tableDataArray, onDeleteField, onUpdateField, o
             {formFields.map(field => (
                 <div key={field.id} className="edit-field">
                     <label>
-                        Метка:
+                        Название поля:
                         <input
                             type="text"
                             value={field.label || ''}
@@ -81,7 +79,7 @@ function Edit_Mode({ formFields, tableDataArray, onDeleteField, onUpdateField, o
                     {field.type === 'text' && (
                         <>
                             <label>
-                                Значение:
+                                Значение поля:
                                 <input
                                     type="text"
                                     value={field.answer || ''}
@@ -127,11 +125,11 @@ function Edit_Mode({ formFields, tableDataArray, onDeleteField, onUpdateField, o
                     {field.type === 'image' && (
                         <div>
                             <label>Фотография:</label>
-                            {/* <input
+                            <input
                                 type="file"
                                 accept="image/*"
                                 onChange={(e) => handleImageUpload(field.id, e)}
-                            /> */}
+                            />
                             {field.answer && (
                                 <img src={field.answer} alt="Uploaded" style={{ maxWidth: '200px' }} />
                             )}

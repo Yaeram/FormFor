@@ -1,25 +1,24 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useParams, useNavigate } from 'react-router-dom'; // Импортируем useParams
+import { useParams, useNavigate } from 'react-router-dom';
 import db from '../../PouchDB/pouchdb';
 import { Header } from '../../components/Header/Header';
 import { Footer } from '../../components/Footer/Footer';
-import Edit_Mode from '../Form/cp_Form/Edit_Mode/Edit_Mode' 
-import Confirmation_Dialog from './cp_Form/Confirmation_Dialog/Confirmation_Dialog';
-import Form_Header from './cp_Form/Form_Header/Form_Header';
-import DisplayModeSection from './cp_Form/DisplayModeSection/DisplayModeSection';
-import AddSelectField from '../New_Form/cp_NForm/Form/AddSelectField';
-import AddTextField from '../New_Form/cp_NForm/Form/AddTextField';
-import Table_Form from '../New_Form/cp_NForm/Table_Form/Table_Form';
+import Edit_Mode from './Edit_Mode/Edit_Mode' 
+import Confirmation_Dialog from '../../components/Confirmation_Dialog/Confirmation_Dialog';
+import Form_Header from './Form_Header/Form_Header';
+import DisplayModeSection from '../../components/DisplayModeSection/DisplayModeSection';
+import AddSelectField from '../New_Form/AddField/AddSelectField';
+import AddTextField from '../New_Form/AddField/AddTextField';
 import { v4 as uuidv4 } from 'uuid';
-import Tag from './cp_Form/Tag/Tag';
+import Tag from './Tag/Tag';
 import './Form.css';
+import FormPreview from '../New_Form/cp_NForm/Preview/FormPreview';
 
 function Form() {
     const { templateId } = useParams();
     const [template, setTemplate] = useState(null);
     const [formData, setFormData] = useState([]);
-    const [tableDataArray, setTableDataArray] = useState([]); // Состояние для хранения данных таблицы
-    const [initialFormData, setInitialFormData] = useState([]);
+    const [tableDataArray, setTableDataArray] = useState([])
     const [isEditMode, setIsEditMode] = useState(false);
     const navigate = useNavigate();
 
@@ -34,6 +33,7 @@ function Form() {
         message: '',
         onConfirm: null,
         onClose: null,
+        isConfirmOnly: false
     });
 
 
@@ -43,7 +43,6 @@ function Form() {
                 const template = await db.get(templateId);
                 setTemplate(template);
                 if (template && template.formFields && Array.isArray(template.formFields)) {
-                    // Initialize form data with empty answers
                     const initialFormData = template.formFields.map(field => ({ ...field, answer: '' }));
                     setFormData(initialFormData);
                     console.log(formData)
@@ -53,7 +52,7 @@ function Form() {
                     setFormData([]);
                     originalFormDataRef.current = [];
                 }
-                setTableDataArray(template.tableData || []); //  Загружаем tableDataArray
+                setTableDataArray(template.tableData || []);
             } catch (error) {
                 console.error('Error loading template:', error);
             }
@@ -101,8 +100,9 @@ function Form() {
         setConfirmationDialog({
             isOpen: true,
             message: 'Поле успешно удалено!',
-            onClose: () => setConfirmationDialog({ ...confirmationDialog, isOpen: false }),
-            onConfirm: null,
+            onClose: null,
+            onConfirm: () => setConfirmationDialog({ ...confirmationDialog, isOpen: false }),
+            isConfirmOnly: true
         });
 
     };
@@ -126,7 +126,7 @@ function Form() {
     };
 
     const handleAddTable = () => {
-        const newTableData = Array(2).fill(null).map(() => Array(2).fill('')); //  Создаем таблицу 2x2 по умолчанию
+        const newTableData = Array(2).fill(null).map(() => Array(2).fill(''));
         setTableDataArray([...tableDataArray, newTableData]);
         setUnsavedChanges(true);
     };
@@ -167,14 +167,22 @@ function Form() {
 
     const saveEditedTemplateConfirmed = async () => {
         try {
-            const updatedTemplate = { ...template, formFields: formData, tableData: tableDataArray }; //  Сохраняем tableDataArray
+            const currentDoc = await db.get(templateId);
+            const updatedTemplate = { 
+                ...currentDoc, 
+                formFields: formData, 
+                tableData: tableDataArray 
+            };
+            formData.map(value => {
+                value.answer = ""
+            })
             await db.put(updatedTemplate);
-            //alert('Шаблон успешно сохранен!');
             setConfirmationDialog({
                 isOpen: true,
                 message: 'Шаблон успешно сохранен!',
-                onClose: () => setConfirmationDialog({ ...confirmationDialog, isOpen: false }),
-                onConfirm: null,
+                onConfirm: () => setConfirmationDialog({ ...confirmationDialog, isOpen: false, isConfirmOnly: true }),
+                onClose: null,
+                isConfirmOnly: true
             });
             setIsEditMode(false);
             setUnsavedChanges(false);
@@ -206,8 +214,6 @@ function Form() {
                     toggleEditMode={toggleEditMode}
                     isEditMode={isEditMode}
                 />
-                {/*  Добавляем console.log сюда */}
-                {/* {console.log("isEditMode:", isEditMode)} */}
 
                 {isEditMode ? (
                     <>
@@ -219,6 +225,7 @@ function Form() {
                             onUpdateOptions={handleUpdateOptions}
                             onDeleteTable={handleDeleteTable}
                             onUpdateTable={handleUpdateTable}
+                            handleInputChange={handleInputChange}
                         />
                         <AddTextField onAddField={handleAddField} />
                         <AddSelectField onAddField={handleAddField} />
@@ -230,7 +237,6 @@ function Form() {
                         formData={formData}
                         tableDataArray={tableDataArray}
                         handleInputChange={handleInputChange}
-
                         onUpdateTable={handleUpdateTable}
                         canEdit={true}
                     />
@@ -255,6 +261,7 @@ function Form() {
                     message={confirmationDialog.message}
                     onClose={confirmationDialog.onClose}
                     onConfirm={confirmationDialog.onConfirm}
+                    isConfirmOnly={confirmationDialog.isConfirmOnly}
                 />
             </div>
             <Footer></Footer>

@@ -1,6 +1,6 @@
 import React from 'react';
 
-function DisplayModeSection({ formData, tableDataArray, handleImageSelectChange, handleInputChange, handleTableChange, isEditMode, canEdit }) {
+function DisplayModeSection({ formData, tableDataArray, handleInputChange, handleTableChange, canEdit }) {
     const handleTableCellChange = (tableIndex, rowIndex, colIndex, value) => {
         handleTableChange = (tableIndex, (prevTableData) => {
             const newTableData = [...prevTableData];
@@ -12,23 +12,21 @@ function DisplayModeSection({ formData, tableDataArray, handleImageSelectChange,
     };
 
     const handleImageUpload = (fieldId, event) => {
-        const files = event.target.files; // Получаем все выбранные файлы
+        const files = event.target.files;
         if (files && files.length > 0) {
             const readers = [];
             const base64Strings = [];
-    
-            // Обрабатываем каждый файл
+ 
             for (let i = 0; i < files.length; i++) {
                 const reader = new FileReader();
                 reader.onloadend = () => {
-                    base64Strings.push(reader.result); // Сохраняем base64 строку
+                    base64Strings.push(reader.result);
     
-                    // Если все файлы обработаны, обновляем состояние
                     if (base64Strings.length === files.length) {
                         handleInputChange(fieldId, base64Strings);
                     }
                 };
-                reader.readAsDataURL(files[i]); // Читаем файл как Data URL
+                reader.readAsDataURL(files[i]);
             }
         }
     };
@@ -37,7 +35,7 @@ function DisplayModeSection({ formData, tableDataArray, handleImageSelectChange,
         <div className="display-mode-section">
             {formData && formData.map(field => (
                 <div key={field.id} className="display-mode-field">
-                    <label htmlFor={field.id}>{field.label}</label>
+                    <label htmlFor={field.id}>Название поля:{field.label}</label>
                     {field.type === 'text' && (
                     <div>
                         {canEdit &&
@@ -47,7 +45,9 @@ function DisplayModeSection({ formData, tableDataArray, handleImageSelectChange,
                             value={field.answer || ''}
                             onChange={(e) => handleInputChange(field.id, e.target.value)}
                         />} 
-                        {field.answer}
+                        {field.answer && (
+                            <span>Значение поля: {field.answer}</span>
+                        )}
                     </div>
                     )}
                     {field.type === 'select' && (                       
@@ -63,7 +63,9 @@ function DisplayModeSection({ formData, tableDataArray, handleImageSelectChange,
                                         <option key={index} value={option}>{option}</option>
                                     ))}
                                 </select>}
-                            {field.answer}
+                                {field.answer && (
+                                    <span>Значение поля: {field.answer}</span>
+                                )}
                         </div>
                     )}
                     {field.type === 'image' && (
@@ -72,14 +74,14 @@ function DisplayModeSection({ formData, tableDataArray, handleImageSelectChange,
                                 <input
                                     type="file"
                                     accept="image/*"
-                                    multiple // Разрешаем выбор нескольких файлов
+                                    multiple
                                     onChange={(e) => handleImageUpload(field.id, e)}
                                 />
                             )}
                             {field.answer && (
                                 <div>
                                     {console.log(field)}
-                                    {field.answer.map((image, index) => (
+                                    Значение поля: {field.answer.map((image, index) => (
                                         <img
                                             key={index}
                                             src={image}
@@ -104,7 +106,7 @@ function DisplayModeSection({ formData, tableDataArray, handleImageSelectChange,
                             )}
                             {field.answer && (
                                 <div>
-                                    {field.answer.map((video) => (
+                                    Значение поля: {field.answer.map((video) => (
                                         <video width="320" height="240" controls poster='Видео загружается' muted>
                                             <source src={video} alt="Uploaded" type='video/x-matroska'autoplay="autoplay"></source>
                                             <source src={video} alt="Uploaded" type='video/mp4' autoplay="autoplay"></source>
@@ -124,7 +126,7 @@ function DisplayModeSection({ formData, tableDataArray, handleImageSelectChange,
                     {tableDataArray.map((table, tableIndex) => {
                         if (!Array.isArray(table.tableData)) {
                             console.warn(`Элемент с индексом ${tableIndex} в tableDataArray не является массивом:`, table);
-                            return null; // Пропускаем этот элемент
+                            return null;
                         }
                         return (
                             <table key={tableIndex} className="display-table">
@@ -132,7 +134,7 @@ function DisplayModeSection({ formData, tableDataArray, handleImageSelectChange,
                                     {table.tableData.map((row, rowIndex) => {
                                         if (!Array.isArray(row)) {
                                             console.warn(`Элемент с индексом ${rowIndex} в таблице ${tableIndex} не является массивом:`, row);
-                                            return null; // Пропускаем эту строку
+                                            return null;
                                         }
                                         return (
                                             <tr key={rowIndex}>

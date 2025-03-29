@@ -1,7 +1,7 @@
 import React from 'react';
 import './Confirmation_Dialog.css';
 
-function ConfirmationDialog({ isOpen, message, onConfirm, onClose }) {
+function ConfirmationDialog({ isOpen, message, onConfirm, onClose, isConfirmOnly }) {
   if (!isOpen) {
       return null;
   }
@@ -10,9 +10,9 @@ function ConfirmationDialog({ isOpen, message, onConfirm, onClose }) {
       <div className="confirmation-dialog-overlay">
           <div className="confirmation-dialog">
             <p>{message}</p>
-            {message === 'Шаблон успешно сохранен!' ?
+            {isConfirmOnly ?
                 <div className='confirmation-buttons'>
-                    <button onClick={onClose}>ОК</button>
+                    <button onClick={onConfirm}>ОК</button>
                 </div>
                 :
                 <div className="confirmation-buttons"> 

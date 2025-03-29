@@ -1,0 +1,62 @@
+.add-select-field {
+  padding: 15px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  margin-bottom: 20px;
+  background-color: #f9f9f9;
+  margin: 10px;
+}
+
+.add-select-field label {
+  display: block;
+  margin-bottom: 10px;
+  font-weight: 500;
+  color: #444;
+}
+
+.add-select-field input[type="text"] {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+.add-select-field .option-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.add-select-field .option-item input {
+  flex-grow: 1;
+  margin-right: 8px;
+}
+
+.add-select-field button {
+  padding: 6px 12px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-right: 5px;
+  margin-bottom: 5px;
+}
+
+.add-select-field button[type="button"] {
+  background-color: #f44336;
+}
+
+.add-select-field button[type="submit"] {
+  background-color: #2196F3;
+}
+
+.add-select-field button:hover {
+  opacity: 0.9;
+}
+
+.add-select-field input[type="text"]::placeholder {
+  color: #999;
+}
