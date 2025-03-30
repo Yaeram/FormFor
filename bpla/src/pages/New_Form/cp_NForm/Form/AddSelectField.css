@@ -36,7 +36,7 @@
 
 .add-select-field button {
   padding: 6px 12px;
-  background-color: #4CAF50;
+  background-color: rgb(158, 158, 158);
   color: white;
   border: none;
   border-radius: 4px;
@@ -46,11 +46,11 @@
 }
 
 .add-select-field button[type="button"] {
-  background-color: #f44336;
+  background-color: rgb(158, 158, 158);
 }
 
 .add-select-field button[type="submit"] {
-  background-color: #2196F3;
+  background-color: rgb(158, 158, 158);
 }
 
 .add-select-field button:hover {

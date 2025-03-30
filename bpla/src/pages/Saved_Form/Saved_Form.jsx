@@ -55,7 +55,7 @@ function Saved_Form() {
     return (
         <div className="saved-forms-container">
             <Header></Header>
-            <div style={{marginLeft: 40, marginRight: 40, flex: 4}}>
+            <div className='saved-form-content'>
                 <h1>Сохраненные анкеты</h1>
                 <input
                     type="text"

@@ -1,7 +1,16 @@
 import React, { useState } from 'react';
 import './Edit_Mode.css';
 
-function Edit_Mode({ formFields, tableDataArray, onDeleteField, onUpdateField, onUpdateOptions, onDeleteTable, onUpdateTable, handleInputChange }) {
+function Edit_Mode({ 
+    formFields,
+    tableDataArray, 
+    onDeleteField, 
+    onUpdateField, 
+    onUpdateOptions, 
+    onDeleteTable, 
+    onUpdateTable, 
+    handleInputChange 
+}) {
     console.log(formFields)
     const [newOption, setNewOption] = useState('');
 
@@ -24,28 +33,51 @@ function Edit_Mode({ formFields, tableDataArray, onDeleteField, onUpdateField, o
     };
 
     const handleImageUpload = (fieldId, event) => {
-        const file = event.target.files[0];
-        if (file) {
+        const files = Array.from(event.target.files || []);
+        if (files.length === 0) return;
+    
+        const newImages = []
+        let loadedCount = 0;
+    
+        files.forEach(file => {
+            if (!file.type.match('image.*')) return;
+    
             const reader = new FileReader();
             reader.onloadend = () => {
                 const base64String = reader.result;
-                handleFieldChange(fieldId, base64String);
+                newImages.push(base64String)
+                loadedCount++;
+                if (loadedCount === files.length) {
+                    handleFieldChange(fieldId, [...newImages]);
+                }
             };
             reader.readAsDataURL(file);
-        }
+        });
     };
 
     const handleVideoUpload = (fieldId, event) => {
-        const file = event.target.files[0];
-        if (file) {
+        const files = Array.from(event.target.files || []);
+        if (files.length === 0) return;
+    
+        const newImages = []
+        let loadedCount = 0;
+    
+        files.forEach(file => {
+            if (!file.type.match('video.*')) return;
+    
             const reader = new FileReader();
             reader.onloadend = () => {
                 const base64String = reader.result;
-                handleFieldChange(fieldId, base64String);
+                newImages.push(base64String)
+                loadedCount++;
+                if (loadedCount === files.length) {
+                    handleFieldChange(fieldId, [...newImages]);
+                }
             };
             reader.readAsDataURL(file);
-        }
+        });
     };
+
     const handleCellChange = (tableIndex, rowIndex, colIndex, value) => {
         const updatedTableDataArray = [...tableDataArray];
         if (!updatedTableDataArray[tableIndex] || !Array.isArray(updatedTableDataArray[tableIndex].tableData)) {
@@ -124,14 +156,23 @@ function Edit_Mode({ formFields, tableDataArray, onDeleteField, onUpdateField, o
                     )}
                     {field.type === 'image' && (
                         <div>
-                            <label>Фотография:</label>
                             <input
                                 type="file"
                                 accept="image/*"
+                                multiple
                                 onChange={(e) => handleImageUpload(field.id, e)}
                             />
                             {field.answer && (
-                                <img src={field.answer} alt="Uploaded" style={{ maxWidth: '200px' }} />
+                                <div>
+                                    Значение поля: {field.answer.map((image, index) => (
+                                        <img
+                                            key={index}
+                                            src={image}
+                                            alt={`Uploaded ${index}`}
+                                            style={{ maxWidth: '200px', margin: '5px' }}
+                                        />
+                                    ))}
+                                </div>
                             )}
                         </div>
                     )}

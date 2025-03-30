@@ -1,4 +1,5 @@
 import React from 'react';
+import './DisplayModeSection.css'
 
 function DisplayModeSection({ formData, tableDataArray, handleInputChange, handleTableChange, canEdit }) {
     const handleTableCellChange = (tableIndex, rowIndex, colIndex, value) => {
@@ -46,7 +47,7 @@ function DisplayModeSection({ formData, tableDataArray, handleInputChange, handl
                             onChange={(e) => handleInputChange(field.id, e.target.value)}
                         />} 
                         {field.answer && (
-                            <span>Значение поля: {field.answer}</span>
+                            <span>{field.answer}</span>
                         )}
                     </div>
                     )}
@@ -64,7 +65,7 @@ function DisplayModeSection({ formData, tableDataArray, handleInputChange, handl
                                     ))}
                                 </select>}
                                 {field.answer && (
-                                    <span>Значение поля: {field.answer}</span>
+                                    <span>{field.answer}</span>
                                 )}
                         </div>
                     )}
@@ -80,8 +81,7 @@ function DisplayModeSection({ formData, tableDataArray, handleInputChange, handl
                             )}
                             {field.answer && (
                                 <div>
-                                    {console.log(field)}
-                                    Значение поля: {field.answer.map((image, index) => (
+                                    {field.answer.map((image, index) => (
                                         <img
                                             key={index}
                                             src={image}
@@ -100,13 +100,13 @@ function DisplayModeSection({ formData, tableDataArray, handleInputChange, handl
                                 <input
                                     type="file"
                                     accept="video/mp4, video/webm, video/ogg, video/x-matroska"
-                                    multiple // Разрешаем выбор нескольких файлов
+                                    multiple
                                     onChange={(e) => handleImageUpload(field.id, e)}
                                 />
                             )}
                             {field.answer && (
                                 <div>
-                                    Значение поля: {field.answer.map((video) => (
+                                    {field.answer.map((video) => (
                                         <video width="320" height="240" controls poster='Видео загружается' muted>
                                             <source src={video} alt="Uploaded" type='video/x-matroska'autoplay="autoplay"></source>
                                             <source src={video} alt="Uploaded" type='video/mp4' autoplay="autoplay"></source>

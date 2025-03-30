@@ -19,9 +19,6 @@ class Main extends Component {
                     <div>
                         {Text().block3}
                     </div>
-                    <div>
-                        {Text().block4}
-                    </div>
                 </div>
                 <Footer></Footer>
             </div>

@@ -25,6 +25,7 @@
 
 .confirmation-buttons button {
     padding: 10px 20px;
+    background-color: rgb(158, 158, 158);
     margin: 0 10px;
     cursor: pointer;
     border: none;
@@ -33,12 +34,12 @@
 }
 
 .confirmation-buttons button:first-child {
-    background-color: #4CAF50;
+    background-color: rgb(158, 158, 158);
     color: white;
 }
 
 .confirmation-buttons button:last-child {
-    background-color: #f44336;
+    background-color: rgb(158, 158, 158);
     color: white;
 }
 

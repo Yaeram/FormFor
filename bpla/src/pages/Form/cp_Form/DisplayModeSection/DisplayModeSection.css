@@ -1,0 +1,106 @@
+.display-mode-section {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+}
+
+.display-mode-field {
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #eee;
+}
+
+.display-mode-field:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+.display-mode-field label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: #333;
+    font-size: 16px;
+}
+
+.display-mode-field input[type="text"],
+.display-mode-field select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-bottom: 10px;
+    box-sizing: border-box;
+    font-size: 14px;
+}
+
+.display-mode-field input[type="file"] {
+    margin-bottom: 10px;
+    width: 100%;
+}
+
+.display-mode-field span {
+    display: inline-block;
+    margin-top: 5px;
+    color: #555;
+    font-size: 14px;
+}
+
+.display-mode-field img {
+    max-width: 100%;
+    height: auto;
+    margin: 5px 0;
+    border: 1px solid #eee;
+    border-radius: 4px;
+}
+
+.display-mode-field video {
+    max-width: 100%;
+    margin: 5px 0;
+    background-color: #000;
+    border-radius: 4px;
+}
+
+.table-container {
+    margin-top: 30px;
+    overflow-x: auto;
+}
+
+.display-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+    background-color: #fff;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.display-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+}
+
+.display-table input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    box-sizing: border-box;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .display-mode-field {
+        margin-bottom: 20px;
+    }
+    
+    .display-table td {
+        padding: 5px;
+    }
+    
+    .display-table input {
+        padding: 5px;
+    }
+}

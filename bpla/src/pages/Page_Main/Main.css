@@ -1,24 +1,112 @@
 .main-page {
-    min-height: 100vh;
     display: flex;
     flex-direction: column;
-    background-color: rgb(236, 236, 236);
-    gap: 30px;
+    min-height: 100vh;
+    background-color: #f8f9fa;
+    font-family: 'Arial', sans-serif;
+    line-height: 1.6;
 }
 
 .main-page__content {
-    /* margin-top: 150px; */
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
+    flex: 1;
+    padding: 40px;
+    max-width: 1400px; /* Увеличил максимальную ширину */
+    margin: 0 auto;
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); /* Увеличил минимальную ширину колонки */
+    gap: 40px; /* Увеличил промежутки между блоками */
+    align-items: start;
 }
 
 .main-page__content > div {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 50%;
-    min-height: 70vh;
+    background-color: white;
+    padding: 30px; /* Увеличил внутренние отступы */
+    border-radius: 8px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    color: #333;
+    text-align: justify; /* Выравнивание по ширине */
+    hyphens: auto; /* Переносы слов */
+    overflow-wrap: break-word; /* Перенос длинных слов */
+}
+
+.main-page__content > div:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.main-page__content h2 {
+    color: #2c3e50;
+    margin-top: 0;
+    margin-bottom: 20px; /* Увеличил отступ снизу */
+    font-size: 1.5em;
+    border-bottom: 2px solid #3498db;
+    padding-bottom: 10px;
+    text-align: left; /* Заголовки выравниваем по левому краю */
+}
+
+.main-page__content p {
+    margin: 0 0 20px 0; /* Увеличил отступ между параграфами */
+    font-size: 17px; /* Немного увеличил размер шрифта */
     text-align: justify;
 }
 
+.main-page__content ul {
+    padding-left: 25px; /* Увеличил отступ списка */
+    text-align: left; /* Списки выравниваем по левому краю */
+}
+
+.main-page__content li {
+    margin-bottom: 12px; /* Увеличил отступ между пунктами списка */
+    text-align: left;
+}
+
+/* Улучшенные стили для длинного текста */
+.main-page__content > div {
+    display: flex;
+    flex-direction: column;
+    min-height: 300px; /* Минимальная высота блока */
+}
+
+/* Responsive adjustments */
+@media (max-width: 992px) {
+    .main-page__content {
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 30px;
+        padding: 30px;
+    }
+}
+
+@media (max-width: 768px) {
+    .main-page__content {
+        grid-template-columns: 1fr;
+        padding: 25px;
+        gap: 25px;
+    }
+    
+    .main-page__content > div {
+        padding: 25px;
+        min-height: auto; /* Убираем фиксированную высоту на мобильных */
+    }
+}
+
+@media (max-width: 480px) {
+    .main-page__content {
+        padding: 20px;
+    }
+    
+    .main-page__content > div {
+        padding: 20px;
+        text-align: left; /* На маленьких экранах выравниваем по левому краю */
+    }
+    
+    .main-page__content h2 {
+        font-size: 1.4em;
+    }
+    
+    .main-page__content p {
+        font-size: 16px;
+        text-align: left;
+    }
+}

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import db from '../../../PouchDB/pouchdb';
+import './Tag.css'
+import db from '../../../../PouchDB/pouchdb';
 
 function Tag({ formTitle, formData, templateId, onComplete }) {
     const [isGenerating, setIsGenerating] = useState(false);
@@ -38,7 +39,7 @@ function Tag({ formTitle, formData, templateId, onComplete }) {
     };
 
     return (
-        <button onClick={handleSave} disabled={isGenerating}>
+        <button onClick={handleSave} disabled={isGenerating} className='save-template-button'>
             {isGenerating ? 'Сохранение...' : 'Сохранить заполненную анкету'}
         </button>
     );

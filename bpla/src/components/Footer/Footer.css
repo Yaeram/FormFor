@@ -1,7 +1,7 @@
 .footer-container {
     display: flex;
     flex-direction: row;
-    height: 15%;
+    height: 10vh;
     background-color: rgb(158, 158, 158);
     border-top: 1px solid #3b3b3b;
     width: 100%;

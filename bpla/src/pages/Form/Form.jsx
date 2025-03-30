@@ -3,14 +3,14 @@ import { useParams, useNavigate } from 'react-router-dom';
 import db from '../../PouchDB/pouchdb';
 import { Header } from '../../components/Header/Header';
 import { Footer } from '../../components/Footer/Footer';
-import Edit_Mode from './Edit_Mode/Edit_Mode' 
-import Confirmation_Dialog from '../../components/Confirmation_Dialog/Confirmation_Dialog';
-import Form_Header from './Form_Header/Form_Header';
-import DisplayModeSection from '../../components/DisplayModeSection/DisplayModeSection';
-import AddSelectField from '../New_Form/AddField/AddSelectField';
-import AddTextField from '../New_Form/AddField/AddTextField';
+import Edit_Mode from './cp_Form/Edit_Mode/Edit_Mode' 
+import Confirmation_Dialog from './cp_Form/Confirmation_Dialog/Confirmation_Dialog';
+import Form_Header from './cp_Form/Form_Header/Form_Header';
+import DisplayModeSection from './cp_Form/DisplayModeSection/DisplayModeSection';
+import AddSelectField from '../New_Form/cp_NForm/Form/AddSelectField';
+import AddTextField from '../New_Form/cp_NForm/Form/AddTextField';
 import { v4 as uuidv4 } from 'uuid';
-import Tag from './Tag/Tag';
+import Tag from './cp_Form/Tag/Tag';
 import './Form.css';
 import FormPreview from '../New_Form/cp_NForm/Preview/FormPreview';
 
@@ -45,7 +45,6 @@ function Form() {
                 if (template && template.formFields && Array.isArray(template.formFields)) {
                     const initialFormData = template.formFields.map(field => ({ ...field, answer: '' }));
                     setFormData(initialFormData);
-                    console.log(formData)
                     originalFormDataRef.current = initialFormData;
                 } else {
                     console.warn("Template has no formFields, or it's not an array.");
@@ -229,8 +228,7 @@ function Form() {
                         />
                         <AddTextField onAddField={handleAddField} />
                         <AddSelectField onAddField={handleAddField} />
-                        <button onClick={handleAddTable}>Добавить таблицу</button>
-                        <button onClick={saveEditedTemplate}>Сохранить изменения шаблона</button>
+                        <button onClick={saveEditedTemplate} className='save-template-button'>Сохранить изменения шаблона</button>
                     </>
                 ) : (
                     <DisplayModeSection

@@ -11,7 +11,6 @@ function EditSavedForm({
     onUpdateAnswer = () => {},
     saveChanges = () => {},
 }) {
-    // Функция для инициализации значений по умолчанию
     const initializeField = (field) => ({
         id: field.id || uuidv4(),
         type: field.type || 'text',
@@ -20,7 +19,6 @@ function EditSavedForm({
         answer: getDefaultAnswer(field.type, field.answer)
     });
 
-    // Функция определения значения по умолчанию для answer
     function getDefaultAnswer(type, answer) {
         switch (type) {
             case 'image':
@@ -102,9 +100,6 @@ function EditSavedForm({
         const files = Array.from(event.target.files || []);
         if (files.length === 0) return;
 
-        const field = currentFormFields.find(f => f.id === fieldId);
-        const currentImages = Array.isArray(field?.answer) ? field.answer : [];
-
         const newImages = [];
         let loadedCount = 0;
 
@@ -117,7 +112,6 @@ function EditSavedForm({
                 loadedCount++;
 
                 if (loadedCount === files.length) {
-                    // handleAnswerChange(fieldId, [...currentImages, ...newImages]);
                     handleAnswerChange(fieldId, [...newImages] )
                 }
             };
@@ -267,7 +261,8 @@ function EditSavedForm({
                                     <div key={index} className="image-thumbnail">
                                         <img 
                                             src={image} 
-                                            alt={`Изображение ${index + 1}`} 
+                                            alt={`Изображение ${index + 1}`}
+                                            style={{ maxWidth: '200px', margin: '5px' }} 
                                             onError={(e) => {
                                                 e.target.src = 'placeholder-image-url';
                                                 e.target.alt = 'Не удалось загрузить изображение';

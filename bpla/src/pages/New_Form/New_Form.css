@@ -1,65 +1,114 @@
 .new-template-page {
-  display: flex; 
+  display: flex;
   flex-direction: column;
-  height: 100vh;
-  gap: 2vh;
+  min-height: 100vh;
+  background-color: #f5f5f5;
 }
 
 .new-template-container {
-  flex: 4;
-  display: flex;
-  flex-direction: column;
-  gap: 2vh;
-  align-items: center;
+  flex: 6;
+  max-width: 90%;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.new-template-container h2 {
+  color: #333;
+  font-size: 1.8em;
+  margin-bottom: 25px;
+  text-align: center;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #ddd;
 }
 
 .new-form-content {
   display: flex;
-  flex-direction: row; 
-  flex: 1; 
-  width: 100%;
+  gap: 30px;
+  margin-bottom: 30px;
 }
-  
+
 .new-form-creation {
-  flex: 1; 
+  flex: 1;
+  background-color: #fff;
   padding: 20px;
-  border-right: 1px solid #ccc;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
 .new-form-non-table-creations {
+  margin-top: 20px;
   display: flex;
-  flex-direction: row;
-  gap: 5vw;
+  flex-direction: column;
+  gap: 20px;
 }
-  
 
-.form-preview-container {
-  flex: 1; 
-  padding: 20px;
-}
-  
-
-label {
+.new-form-creation label {
   display: block;
-  margin-bottom: 5px;
+  margin-bottom: 15px;
 }
-  
-input[type="text"] {
+
+.new-form-creation label input[type="text"],
+.new-form-creation label input[type="number"] {
   width: 100%;
-  padding: 8px;
-  margin-bottom: 10px;
-  box-sizing: border-box; 
-}
-  
-button {
   padding: 10px;
-  background-color: #8a8a8a;
+  margin-top: 5px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 15px;
+  box-sizing: border-box;
+}
+
+.table-creation-settings {
+  background-color: #f9f9f9;
+  padding: 15px;
+  border-radius: 6px;
+  margin-top: 15px;
+  border-left: 4px solid #4CAF50;
+}
+
+.new-template-container button {
+  padding: 12px 25px;
+  background-color: rgb(158, 158, 158);
   color: white;
   border: none;
+  border-radius: 4px;
+  font-size: 16px;
   cursor: pointer;
-  width: fit-content;
+  transition: background-color 0.3s;
+  display: block;
+  margin: 20px auto;
 }
+
+.new-template-container button:hover {
+  background-color: rgb(135, 134, 134);
+}
+
+/* Responsive layout */
+@media (max-width: 900px) {
+  .new-form-content {
+      flex-direction: column;
+  }
   
-button:hover {
-  background-color: #242524;
+  .new-form-creation {
+      margin-bottom: 20px;
+  }
+}
+
+@media (max-width: 600px) {
+  .new-template-container {
+      padding: 15px;
+  }
+  
+  .new-template-container h2 {
+      font-size: 1.5em;
+  }
+  
+  .new-form-creation {
+      padding: 15px;
+  }
+  
+  .new-template-container button {
+      width: 100%;
+      padding: 10px;
+  }
 }

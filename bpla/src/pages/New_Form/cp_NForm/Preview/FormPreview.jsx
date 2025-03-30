@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import Table_Form from '../cp_NForm/Table_Form/Table_Form';
+import Table_Form from '../Table_Form/Table_Form';
 import './FormPreview.css';
 
 function FormPreview({ formFields, tableDataArray, onDeleteField, onDeleteTable, handleFileChange, onTableChange, templateTitle }) {

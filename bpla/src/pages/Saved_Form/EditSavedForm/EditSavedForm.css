@@ -21,14 +21,14 @@
   
   .edit-saved-form-field button {
     padding: 5px 10px;
-    background-color: #f44336;
+    background-color: rgb(158, 158, 158);
     color: white;
     border: none;
     cursor: pointer;
   }
   
   .edit-saved-form-field button:hover {
-    background-color: #da190b;
+  background-color: rgb(129, 129, 129);
   }
   
   .option-row {
@@ -41,7 +41,7 @@
     margin-right: 5px;
   }
   .edit-saved-form-field button:hover {
-    background-color: #da190b;
+    background-color: rgb(123, 123, 123);
   }
   .modal {
     position: fixed;

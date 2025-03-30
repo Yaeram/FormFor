@@ -63,7 +63,7 @@ function Form_Template() {
   return (
       <div className="form-template-container">
           <Header></Header>
-          <div style={{marginLeft: 40, marginRight: 40, flex: 4}}>
+          <div className='form-template-content'>
               <h2>Шаблоны анкет</h2>
               <input
                   type="text"
