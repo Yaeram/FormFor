@@ -64,44 +64,52 @@ function Saved_Form() {
     };
 
     const handleFileUpload = async (event) => {
-        const file = event.target.files[0];
-        if (!file) return;
-
-        const reader = new FileReader();
-        reader.onload = async (e) => {
-            try {
-                const arrayBuffer = e.target.result;
-                const result = await mammoth.extractRawText({ arrayBuffer });
-                const text = result.value;
-                
-                // Парсим текст документа
-                const parsedForm = parseWordDocument(text, file.name);
-                
-                // Сохраняем в PouchDB
-                await db.put(parsedForm);
-                
-                // Обновляем список форм
-                const forms = await db.allDocs({
-                    include_docs: true,
-                    startkey: 'form_',
-                    endkey: 'form_\uffff'
+        const files = Array.from(event.target.files);
+        if (!files.length) return;
+    
+        try {
+            const uploadPromises = files.map(file => {
+                return new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = async (e) => {
+                        try {
+                            const arrayBuffer = e.target.result;
+                            const result = await mammoth.extractRawText({ arrayBuffer });
+                            const text = result.value;
+                            const parsedForm = parseWordDocument(text, file.name);
+                            await db.put(parsedForm);
+                            resolve();
+                        } catch (error) {
+                            console.error('Error processing Word document:', error);
+                            reject(error);
+                        }
+                    };
+                    reader.onabort = () => reject(new Error('File reading was aborted'));
+                    reader.onerror = () => reject(new Error('File reading failed'));
+                    reader.readAsArrayBuffer(file);
                 });
-                const sortedForms = forms.rows.map(row => row.doc).sort((a, b) => b.createdAt - a.createdAt);
-                setSavedForms(sortedForms);
-                
-                alert('Документ успешно загружен и сохранен!');
-            } catch (error) {
-                console.error('Error processing Word document:', error);
-                alert('Ошибка при обработке документа!');
-            }
-        };
-        reader.readAsArrayBuffer(file);
+            });
+    
+            await Promise.all(uploadPromises);
+    
+            const forms = await db.allDocs({
+                include_docs: true,
+                startkey: 'form_',
+                endkey: 'form_\uffff'
+            });
+            const sortedForms = forms.rows.map(row => row.doc).sort((a, b) => b.createdAt - a.createdAt);
+            setSavedForms(sortedForms);
+    
+            alert(`Успешно загружено ${files.length} документ(ов). Анкеты созданы.`);
+        } catch (error) {
+            console.error('Не удалось обработать документы:', error);
+            alert('Ошибка при обработке документов. Часть файлов могла не загрузиться.');
+        } finally {
+            event.target.value = '';
+        }
     };
-
+    
     const parseWordDocument = (text, filename) => {
-        const lines = text.split('\n').filter(line => line.trim() !== '');
-        console.log(lines)
-        
         const newForm = {
             _id: `form_${uuidv4()}`,
             templateId: undefined,
@@ -112,150 +120,84 @@ function Saved_Form() {
             _rev: undefined,
             formFields: []
         };
-
-        // Регулярные выражения для извлечения данных
-        const objectRegex = /Объект испытаний:(.+)/;
-        const customerRegex = /Заказчик:(.+)/;
-        const basisRegex = /Основание проведение испытаний:(.+)/;
-        const purposeRegex = /1\.\s*Цель испытаний:(.+)/;
-        const placeRegex = /2\.\s*Место проведения испытаний:(.+)/;
-        const startDateRegex = /3\.\s*Дата и время начала проведения испытаний:(.+)/;
-        const endDateRegex = /4\.\s*Дата и время окончания проведения испытаний:(.+)/;
-        const weatherRegex = /5\.\s*Метеоусловия при проведении испытаний:(.+)/;
-        const equipmentRegex = /6\.\s*Комплектность представляемого на тестовые испытания объекта:([\s\S]+?)(?=\d+\.\s+Результаты испытаний:)/;
-        const resultsRegex = /7\.\s*Результаты испытаний:([\s\S]+?)(?=\d+\.\s+Замечания и рекомендации)/;
-        const remarksRegex = /8\.\s*Замечания и рекомендации([\s\S]+?)(?=\d+\.\s+Выводы:)/;
-        const conclusionsRegex = /9\.\s*Выводы:(.+)/;
-
-        // Извлекаем данные из текста
-        lines.forEach(line => {
-            if (objectRegex.test(line)) {
+    
+        // Улучшенная нормализация текста
+        const normalizedText = text.replace(/\n+/g, '\n').replace(/\r/g, '').trim();
+    
+        // Более точные регулярные выражения с явными границами
+        const regexPatterns = {
+            object: /Объект испытаний:\s*([^\n]+)/i,
+            customer: /Заказчик:\s*([^\n]+)/i,
+            basis: /Основание проведение испытаний:\s*([^\n]+)/i,
+            purpose: /Цель испытаний:\s*([^\n]+)/i,
+            place: /Место проведения испытаний:\s*([^\n]+)/i,
+            startDate: /Дата и время начала проведения испытаний:\s*([^\n]+)/i,
+            endDate: /Дата и время окончания проведения испытаний:\s*([^\n]+)/i,
+            weather: /Метеоусловия при проведении испытаний:\s*([^\n]+)/i,
+            equipment: /Комплектность представляемого на тестовые испытания объекта:\s*([\s\S]+?)(?=\n\d+\.|\n7\.)/i,
+            results: /Результаты испытаний:\s*([\s\S]+?)(?=\n\s*Замечания и рекомендации|$)/i,
+            remarks: /Замечания и рекомендации\s*\n([\s\S]+?)(?=\n\s*Выводы|$)/i,
+            conclusions: /Выводы:\s*([\s\S]+)/i
+        };
+    
+        // Функция для очистки и нормализации текста
+        const cleanText = (text) => {
+            return text
+                .replace(/\n/g, ' ')
+                .replace(/\s+/g, ' ')
+                .replace(/\s*,\s*/g, ', ')
+                .replace(/\s*\.\s*/g, '. ')
+                .replace(/\s*:\s*/g, ': ')
+                .trim();
+        };
+    
+        // Извлекаем данные по всем полям
+        const extractField = (label, pattern, idSuffix) => {
+            const match = normalizedText.match(pattern);
+            if (match && match[1]) {
                 newForm.formFields.push({
-                    label: "Объект испытаний",
+                    label,
                     type: "text",
                     value: "",
-                    id: `field_${Date.now()}_1`,
-                    answer: line.match(objectRegex)[1].trim()
+                    id: `field_${Date.now()}_${idSuffix}`,
+                    answer: cleanText(match[1])
                 });
-            } else if (customerRegex.test(line)) {
+            } else {
+                console.warn(`Не удалось извлечь поле: ${label}`);
+                // Добавляем пустое поле, если не найдено
                 newForm.formFields.push({
-                    label: "Заказчик",
+                    label,
                     type: "text",
                     value: "",
-                    id: `field_${Date.now()}_2`,
-                    answer: line.match(customerRegex)[1].trim()
-                });
-            } else if (basisRegex.test(line)) {
-                newForm.formFields.push({
-                    label: "Основание проведения испытаний",
-                    type: "text",
-                    value: "",
-                    id: `field_${Date.now()}_3`,
-                    answer: line.match(basisRegex)[1].trim()
+                    id: `field_${Date.now()}_${idSuffix}`,
+                    answer: ""
                 });
             }
+        };
+
+        console.log("Normalized text:", normalizedText);
+        Object.entries(regexPatterns).forEach(([name, pattern]) => {
+            const match = normalizedText.match(pattern);
+            console.log(`Match for ${name}:`, match ? match[1] : 'NOT FOUND');
         });
-
-        // Обработка полей с нумерацией
-        const fullText = lines.join('\n');
-        
-        if (purposeRegex.test(fullText)) {
-            newForm.formFields.push({
-                label: "Цель испытаний",
-                type: "text",
-                value: "",
-                id: `field_${Date.now()}_4`,
-                answer: fullText.match(purposeRegex)[1].trim()
-            });
-        }
-        
-        if (placeRegex.test(fullText)) {
-            newForm.formFields.push({
-                label: "Место проведения испытаний",
-                type: "text",
-                value: "",
-                id: `field_${Date.now()}_5`,
-                answer: fullText.match(placeRegex)[1].trim()
-            });
-        }
-        
-        if (startDateRegex.test(fullText)) {
-            newForm.formFields.push({
-                label: "Дата и время начала проведения испытаний",
-                type: "text",
-                value: "",
-                id: `field_${Date.now()}_6`,
-                answer: fullText.match(startDateRegex)[1].trim()
-            });
-        }
-        
-        if (endDateRegex.test(fullText)) {
-            newForm.formFields.push({
-                label: "Дата и время окончания проведения испытаний",
-                type: "text",
-                value: "",
-                id: `field_${Date.now()}_7`,
-                answer: fullText.match(endDateRegex)[1].trim()
-            });
-        }
-        
-        if (weatherRegex.test(fullText)) {
-            newForm.formFields.push({
-                label: "Метеоусловия при проведении испытаний",
-                type: "text",
-                value: "",
-                id: `field_${Date.now()}_8`,
-                answer: fullText.match(weatherRegex)[1].trim()
-            });
-        }
-
-        // Обработка комплектности
-        if (equipmentRegex.test(fullText)) {
-            const equipmentText = fullText.match(equipmentRegex)[1].trim();
-            newForm.formFields.push({
-                label: "Комплектность представляемого на тестовые испытания объекта",
-                type: "text",
-                value: "",
-                id: `field_${Date.now()}_9`,
-                answer: equipmentText.replace(/\n/g, ' ').replace(/\s+/g, ' ').trim()
-            });
-        }
-
-        // Обработка результатов испытаний
-        if (resultsRegex.test(fullText)) {
-            const resultsText = fullText.match(resultsRegex)[1].trim();
-            newForm.formFields.push({
-                label: "Результаты испытаний",
-                type: "text",
-                value: "",
-                id: `field_${Date.now()}_10`,
-                answer: resultsText.replace(/\n/g, ' ').replace(/\s+/g, ' ').trim()
-            });
-        }
-
-        // Обработка замечаний и рекомендаций
-        if (remarksRegex.test(fullText)) {
-            const remarksText = fullText.match(remarksRegex)[1].trim();
-            newForm.formFields.push({
-                label: "Замечания и рекомендации",
-                type: "text",
-                value: "",
-                id: `field_${Date.now()}_11`,
-                answer: remarksText.replace(/\n/g, ' ').replace(/\s+/g, ' ').trim()
-            });
-        }
-
-        // Обработка выводов
-        if (conclusionsRegex.test(fullText)) {
-            newForm.formFields.push({
-                label: "Выводы",
-                type: "text",
-                value: "",
-                id: `field_${Date.now()}_12`,
-                answer: fullText.match(conclusionsRegex)[1].trim()
-            });
-        }
-
+    
+        // Порядок извлечения важен - от более специфичных к более общим
+        extractField("Выводы", regexPatterns.conclusions, 12);
+        extractField("Замечания и рекомендации", regexPatterns.remarks, 11);
+        extractField("Результаты испытаний", regexPatterns.results, 10);
+        extractField("Комплектность представляемого на тестовые испытания объекта", regexPatterns.equipment, 9);
+        extractField("Метеоусловия при проведении испытаний", regexPatterns.weather, 8);
+        extractField("Дата и время окончания проведения испытаний", regexPatterns.endDate, 7);
+        extractField("Дата и время начала проведения испытаний", regexPatterns.startDate, 6);
+        extractField("Место проведения испытаний", regexPatterns.place, 5);
+        extractField("Цель испытаний", regexPatterns.purpose, 4);
+        extractField("Основание проведения испытаний", regexPatterns.basis, 3);
+        extractField("Заказчик", regexPatterns.customer, 2);
+        extractField("Объект испытаний", regexPatterns.object, 1);
+    
+        // Переворачиваем порядок полей, так как добавляли с конца
+        newForm.formFields.reverse();
+    
         return newForm;
     };
 
@@ -273,6 +215,7 @@ function Saved_Form() {
                         id="word-upload"
                         type="file"
                         accept=".docx"
+                        multiple
                         onChange={handleFileUpload}
                         style={{ display: 'none' }}
                     />
