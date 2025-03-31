@@ -150,8 +150,8 @@ function New_Form() {
                             <AddSelectField onAddField={addField} />
                         </div>
                     
-                        {/* <button onClick={handleShowTableCreation}>Создать таблицу</button>
-                        {isTableCreationVisible && (
+                        {/* <button onClick={handleShowTableCreation}>Создать таблицу</button> */}
+                        {/* {isTableCreationVisible && (
                             <div className="table-creation-settings">
                                 <label>
                                     Название таблицы:

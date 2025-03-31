@@ -11,7 +11,6 @@ function Edit_Mode({
     onUpdateTable, 
     handleInputChange 
 }) {
-    console.log(formFields)
     const [newOption, setNewOption] = useState('');
 
     const handleLabelChange = (event, fieldId) => {

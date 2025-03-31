@@ -34,9 +34,10 @@ function DisplayModeSection({ formData, tableDataArray, handleInputChange, handl
 
     return (
         <div className="display-mode-section">
+            {console.log(formData)}
             {formData && formData.map(field => (
                 <div key={field.id} className="display-mode-field">
-                    <label htmlFor={field.id}>Название поля:{field.label}</label>
+                    <label htmlFor={field.id}>{field.label}</label>
                     {field.type === 'text' && (
                     <div>
                         {canEdit &&
