@@ -110,7 +110,6 @@ function Edit_Mode({
                     {field.type === 'text' && (
                         <>
                             <label>
-                                Значение поля:
                                 <input
                                     type="text"
                                     value={field.answer || ''}
@@ -163,7 +162,7 @@ function Edit_Mode({
                             />
                             {field.answer && (
                                 <div>
-                                    Значение поля: {field.answer.map((image, index) => (
+                                    {field.answer.map((image, index) => (
                                         <img
                                             key={index}
                                             src={image}
