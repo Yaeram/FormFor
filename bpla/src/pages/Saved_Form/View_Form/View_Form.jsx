@@ -5,6 +5,8 @@ import db from '../../../PouchDB/pouchdb';
 import DisplayModeSection from '../../Form/cp_Form/DisplayModeSection/DisplayModeSection';
 import EditSavedForm from '../EditSavedForm/EditSavedForm';
 import './View_Form.css';
+import { Header } from '../../../components/Header/Header';
+import { Footer } from '../../../components/Footer/Footer';
 
 function View_Form() {
     const { formId } = useParams();
@@ -106,36 +108,42 @@ function View_Form() {
     }
 
     return (
-        <div className="view-form-container">
-            <h1>{formTitle}</h1>
-            <p>Тег: {formTag}</p>
-            {formCreatedAt && (
-                <p>Дата создания: {new Date(formCreatedAt).toLocaleString()}</p>
-            )}
+        <div className="view-form-page">
+            <Header></Header>
+            <div className="view-form-container">
+                
+                <h1>{formTitle}</h1>
+                <p>Тег: {formTag}</p>
+                {formCreatedAt && (
+                    <p>Дата создания: {new Date(formCreatedAt).toLocaleString()}</p>
+                )}
 
-            {!isEditMode ? (
-                <>
-                    <button onClick={() => setIsEditMode(true)}>Редактировать форму</button>
-                    <DisplayModeSection 
-                        formData={formData} 
-                        canEdit={false} 
-                        tableDataArray={tableDataArray}
-                    />
-                </>
-            ) : (
-                <>
-                    <button onClick={() => setIsEditMode(false)}>Отменить редактирование</button>
-                    <EditSavedForm
-                        formFields={formData}
-                        onUpdateField={handleUpdateField}
-                        onUpdateOptions={handleUpdateOptions}
-                        onDeleteField={handleDeleteField}
-                        onUpdateAnswer={handleUpdateAnswer}
-                        saveChanges={handleSaveChanges}
-                    />
-                </>
-            )}
+                {!isEditMode ? (
+                    <>
+                        <button onClick={() => setIsEditMode(true)}>Редактировать форму</button>
+                        <DisplayModeSection 
+                            formData={formData} 
+                            canEdit={false} 
+                            tableDataArray={tableDataArray}
+                        />
+                    </>
+                ) : (
+                    <>
+                        <button onClick={() => setIsEditMode(false)}>Отменить редактирование</button>
+                        <EditSavedForm
+                            formFields={formData}
+                            onUpdateField={handleUpdateField}
+                            onUpdateOptions={handleUpdateOptions}
+                            onDeleteField={handleDeleteField}
+                            onUpdateAnswer={handleUpdateAnswer}
+                            saveChanges={handleSaveChanges}
+                        />
+                    </>
+                )}
+            </div>
+            <Footer></Footer>
         </div>
+        
     );
 }
 

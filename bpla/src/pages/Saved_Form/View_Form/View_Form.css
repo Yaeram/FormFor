@@ -2,5 +2,12 @@
     padding: 20px;
     max-width: 800px;
     margin: 0 auto;
+    flex: 6;
+}
+
+.view-form-page {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
 }
 
