@@ -11,10 +11,12 @@ function createWindow() {
     }
   });
 
+  // Выбираем путь к файлу в зависимости от режима
   const startURL = isDev
-    ? 'http://localhost:3000'
-    : `file://${path.join(__dirname, 'build', 'index.html')}`;
+    ? 'http://localhost:3000' // В dev-режиме загружаем React-сервер
+    : `file://${path.join(app.getAppPath(), 'build', 'index.html')}`; // В продакшене загружаем локальный файл
 
+  console.log("Загружаем страницу:", startURL);
   win.loadURL(startURL);
 
   // Включаем DevTools только в dev-режиме
