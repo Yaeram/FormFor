@@ -9,10 +9,10 @@ import Form_Header from './cp_Form/Form_Header/Form_Header';
 import DisplayModeSection from './cp_Form/DisplayModeSection/DisplayModeSection';
 import AddSelectField from '../New_Form/cp_NForm/Form/AddSelectField';
 import AddTextField from '../New_Form/cp_NForm/Form/AddTextField';
+import AddTable from '../New_Form/cp_NForm/Form/AddTable';
 import { v4 as uuidv4 } from 'uuid';
 import Tag from './cp_Form/Tag/Tag';
 import './Form.css';
-import FormPreview from '../New_Form/cp_NForm/Preview/FormPreview';
 
 function Form() {
     const { templateId } = useParams();
@@ -112,6 +112,7 @@ function Form() {
                 field.id === fieldId ? { ...field, label: newLabel } : field
             )
         );
+        console.log(formData)
         setUnsavedChanges(true);
     };
 
@@ -124,8 +125,18 @@ function Form() {
         setUnsavedChanges(true);
     };
 
-    const handleAddTable = () => {
-        const newTableData = Array(2).fill(null).map(() => Array(2).fill(''));
+    const handleUpdateTableName = (tableIndex, newName) => {
+        setTableDataArray(prev => 
+            prev.map((table, index) => 
+                index === tableIndex 
+                    ? { ...table, tableName: newName } 
+                    : table
+            )
+        );
+        setUnsavedChanges(true)
+    };
+
+    const handleAddTable = (newTableData) => {
         setTableDataArray([...tableDataArray, newTableData]);
         setUnsavedChanges(true);
     };
@@ -191,7 +202,7 @@ function Form() {
         }
     };
 
-    const handleFormSaveComplete = (formTag, filledFormData) => {
+    const handleFormSaveComplete = (formTag) => {
         setConfirmationDialog({
             isOpen: true,
             message: `Анкета "${formTitle}" сохранена с тегом: ${formTag}!`,
@@ -204,8 +215,9 @@ function Form() {
 
     return (
         <div className="form-container">
+            {console.log(tableDataArray)}
             <Header></Header>
-            <div style={{ flex: 4 }}>
+            <div className='form-content'>
                 <Form_Header
                     templateTitle={template?.title}
                     formTitle={formTitle}
@@ -216,7 +228,9 @@ function Form() {
 
                 {isEditMode ? (
                     <>
-                        <Edit_Mode
+                        <div className='edit-mode-layout'>
+                            <Edit_Mode
+                            templateTitle={template?.title}
                             formFields={formData}
                             tableDataArray={tableDataArray}
                             onDeleteField={handleDeleteField}
@@ -224,28 +238,40 @@ function Form() {
                             onUpdateOptions={handleUpdateOptions}
                             onDeleteTable={handleDeleteTable}
                             onUpdateTable={handleUpdateTable}
+                            onUpdateTableName={handleUpdateTableName}
                             handleInputChange={handleInputChange}
-                        />
-                        <AddTextField onAddField={handleAddField} />
-                        <AddSelectField onAddField={handleAddField} />
+                            />
+                            <div className='edit-mode-add-fields'>
+                                <AddTextField onAddField={handleAddField} />
+                                <AddSelectField onAddField={handleAddField} />
+                                <AddTable handleAddTable={handleAddTable}></AddTable>
+                            </div>
+                        </div>
+                        
                         <button onClick={saveEditedTemplate} className='save-template-button'>Сохранить изменения шаблона</button>
                     </>
                 ) : (
-                    <DisplayModeSection
+                    <>
+                        <DisplayModeSection
+                            templateTitle={template?.title}
+                            formData={formData}
+                            tableDataArray={tableDataArray}
+                            handleInputChange={handleInputChange}
+                            onUpdateTable={handleUpdateTable}
+                            canEdit={true}
+                        />
+                        <Tag
+                        defaultTitle={template?.title}
+                        formTitle={formTitle}
                         formData={formData}
                         tableDataArray={tableDataArray}
-                        handleInputChange={handleInputChange}
-                        onUpdateTable={handleUpdateTable}
-                        canEdit={true}
-                    />
+                        templateId={templateId}
+                        onComplete={handleFormSaveComplete}
+                        />
+                    </>     
                 )}
 
-                <Tag
-                    formTitle={formTitle}
-                    formData={formData}
-                    templateId={templateId}
-                    onComplete={handleFormSaveComplete}
-                />
+                
 
                 <Confirmation_Dialog
                     isOpen={showConfirmationDialog}

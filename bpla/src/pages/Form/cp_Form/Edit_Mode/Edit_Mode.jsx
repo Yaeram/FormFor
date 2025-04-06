@@ -2,13 +2,15 @@ import React, { useState } from 'react';
 import './Edit_Mode.css';
 
 function Edit_Mode({ 
+    templateTitle,
     formFields,
     tableDataArray, 
     onDeleteField, 
     onUpdateField, 
     onUpdateOptions, 
     onDeleteTable, 
-    onUpdateTable, 
+    onUpdateTable,
+    onUpdateTableName, 
     handleInputChange 
 }) {
     const [newOption, setNewOption] = useState('');
@@ -16,6 +18,10 @@ function Edit_Mode({
     const handleLabelChange = (event, fieldId) => {
         onUpdateField(fieldId, event.target.value);
     };
+
+    const handleTableLabelChange = (event, tableId) => {
+        onUpdateTableName(tableId, event.target.value)
+    }
 
     const handleAddOption = (fieldId) => {
         onUpdateOptions(fieldId, [...(formFields.find(field => field.id === fieldId)?.options || []), newOption]);
@@ -95,7 +101,7 @@ function Edit_Mode({
 
     return (
         <div className="edit-mode">
-            <h3>Режим редактирования шаблона</h3>
+            {/* <h3>Режим редактирования шаблона "{templateTitle}"</h3> */}
 
             {formFields.map(field => (
                 <div key={field.id} className="edit-field">
@@ -194,31 +200,28 @@ function Edit_Mode({
                 </div>
             ))}
 
-            {/*  Отображение таблиц */}
             {tableDataArray && tableDataArray.length > 0 && (
                 tableDataArray.map((tableData, tableIndex) => (
-                    <div key={tableIndex}>
+                    <div key={tableIndex} className='edit-table'>
+                        <label>
+                        Название таблицы:
+                        <input
+                            type="text"
+                            value={tableData.tableName || ''}
+                            onChange={(event) => handleTableLabelChange(event, tableIndex)}
+                        />
+                        </label>
                         <table>
                             <tbody>
                                 {tableData.tableData.map((row, rowIndex) => (
                                     <tr key={rowIndex}>
                                         {row.map((cell, colIndex) => (
                                             <td key={colIndex}>
-                                                {/*  Если это крайняя левая или верхняя ячейка, делаем ее редактируемой */}
-                                                {(rowIndex === 0 || colIndex === 0) ? (
-
-                                                    <input
-                                                        type="text"
-                                                        value={cell}
-                                                        onChange={(e) => handleCellChange(tableIndex, rowIndex, colIndex, e.target.value)}
-                                                    />
-                                                ) : (
-                                                    /*  Иначе отображаем текст */
-                                                    <input style={{ pointerEvents: 'none' }}
-                                                        type="text"
-                                                        value={cell}
-                                                    />
-                                                )}
+                                                <input
+                                                    type="text"
+                                                    value={cell}
+                                                    onChange={(e) => handleCellChange(tableIndex, rowIndex, colIndex, e.target.value)}
+                                                />
                                             </td>
                                         ))}
                                     </tr>

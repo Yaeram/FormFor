@@ -1,21 +1,24 @@
 import React from 'react';
 import './DisplayModeSection.css'
 
-function DisplayModeSection({ formData, tableDataArray, handleInputChange, handleTableChange, canEdit }) {
+function DisplayModeSection({ templateTitle, formData, tableDataArray, handleInputChange, onUpdateTable, canEdit }) {
     const handleTableCellChange = (tableIndex, rowIndex, colIndex, value) => {
-        handleTableChange = (tableIndex, (prevTableData) => {
-            const newTableData = [...prevTableData];
-            const newRow = [...newTableData[rowIndex]];
-            newRow[colIndex] = value;
-            newTableData[rowIndex] = newRow;
-            return newTableData;
-        });
+        const newTableData = [...tableDataArray[tableIndex].tableData];
+        const newRow = [...newTableData[rowIndex]];
+        newRow[colIndex] = value;
+        newTableData[rowIndex] = newRow;
+        
+        const updatedTable = {
+            ...tableDataArray[tableIndex],
+            tableData: newTableData
+        };
+        
+        onUpdateTable(tableIndex, updatedTable);
     };
 
     const handleImageUpload = (fieldId, event) => {
         const files = event.target.files;
         if (files && files.length > 0) {
-            const readers = [];
             const base64Strings = [];
  
             for (let i = 0; i < files.length; i++) {
@@ -34,7 +37,7 @@ function DisplayModeSection({ formData, tableDataArray, handleInputChange, handl
 
     return (
         <div className="display-mode-section">
-            {console.log(formData)}
+            {/* <h3>{templateTitle}</h3> */}
             {formData && formData.map(field => (
                 <div key={field.id} className="display-mode-field">
                     <label htmlFor={field.id}>{field.label}</label>
@@ -122,39 +125,43 @@ function DisplayModeSection({ formData, tableDataArray, handleInputChange, handl
                     )}
                 </div>
             ))}
+
             {tableDataArray && tableDataArray.length > 0 && (
                 <div className="table-container">
                     {tableDataArray.map((table, tableIndex) => {
-                        if (!Array.isArray(table.tableData)) {
-                            console.warn(`Элемент с индексом ${tableIndex} в tableDataArray не является массивом:`, table);
+                        if (!table || !Array.isArray(table.tableData)) {
+                            console.log(`Элемент с индексом ${tableIndex} в tableDataArray не является массивом:`, table);
                             return null;
                         }
                         return (
+                            <>
+                            <label htmlFor={tableIndex}>{table.tableName}</label>
                             <table key={tableIndex} className="display-table">
                                 <tbody>
                                     {table.tableData.map((row, rowIndex) => {
                                         if (!Array.isArray(row)) {
-                                            console.warn(`Элемент с индексом ${rowIndex} в таблице ${tableIndex} не является массивом:`, row);
+                                            console.log(`Элемент с индексом ${rowIndex} в таблице ${tableIndex} не является массивом:`, row);
                                             return null;
                                         }
                                         return (
                                             <tr key={rowIndex}>
                                                 {row.map((cell, colIndex) => (
                                                     <td key={colIndex}>
-                                                        <input
+
+                                                        {canEdit ? <input
                                                             type="text"
                                                             value={cell}
                                                             onChange={(e) =>
                                                                 handleTableCellChange(tableIndex, rowIndex, colIndex, e.target.value)
                                                             }
-                                                        />
+                                                        /> : cell}
                                                     </td>
                                                 ))}
                                             </tr>
                                         );
                                     })}
                                 </tbody>
-                            </table>
+                            </table></> 
                         );
                     })}
                 </div>

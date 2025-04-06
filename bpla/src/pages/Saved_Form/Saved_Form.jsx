@@ -12,8 +12,6 @@ function Saved_Form() {
     const [savedForms, setSavedForms] = useState([]);
     const [showConfirmationDialog, setShowConfirmationDialog] = useState(false);
     const [formToDelete, setFormToDelete] = useState(null);
-    const navigate = useNavigate();
-    const location = useLocation();
     const [searchQuery, setSearchQuery] = useState('');
 
     useEffect(() => {
@@ -108,8 +106,67 @@ function Saved_Form() {
             event.target.value = '';
         }
     };
+
+    const extractResultsTable = (text) => { 
+        const tableStart = text.indexOf("Результаты испытаний:");
+        if (tableStart === -1) return [];
+        
+        const tableEnd = text.indexOf("Замечания и рекомендации", tableStart);
+        if (tableEnd === -1) return [];
+        
+        const tableContent = text.slice(tableStart, tableEnd);
+              
+        const rows = [];
+        rows.push([
+            '№', 
+            'Проверяемый показатель по пунктам программы испытаний', 
+            'Фактическое значение', 
+            'Значение по ТЗ', 
+            'Примечание'
+        ]);
+        
+        // Разбиваем на строки и обрабатываем
+        const lines = tableContent.split('\n')
+            .map(line => line.trim())
+            .filter(line => line.length > 0 && !line.startsWith('+-'));
+        let newlines = lines.slice(6, -1)
+        
+        let currentRow = [];
+
+        for (const item of newlines) {
+            // Проверяем, начинается ли элемент с цифры и точки (например "1.", "2.3." и т.д.)
+            if (/^\d+\./.test(item)) {
+              // Если у нас уже есть собранная строка, добавляем её в результат
+                if (currentRow.length > 0) {
+                // Дополняем строку до 5 элементов пустыми строками
+                    while (currentRow.length < 5) {
+                        currentRow.push("");
+                    }
+                    rows.push(currentRow);
+                }
+                currentRow = [item];
+            } else {
+              // Добавляем элемент в текущую строку, если ещё не достигли 5 элементов
+                if (currentRow.length < 5) {
+                    currentRow.push(item);
+                }
+            }
+        }
+        
+        return rows;
+    };
     
     const parseWordDocument = (text, filename) => {
+
+        const normalizedText = text.replace(/\n+/g, '\n').replace(/\r/g, '').trim();
+        // Предварительная обработка текста
+        const cleanText = text
+            .replace(/\r/g, '')
+            .replace(/\n+/g, '\n')
+            .replace(/\.mark\}/g, '')
+            .replace(/\[.*?\]/g, '')
+            .trim();
+    
         const newForm = {
             _id: `form_${uuidv4()}`,
             templateId: undefined,
@@ -118,13 +175,10 @@ function Saved_Form() {
             tag: generateTag(),
             createdAt: Date.now(),
             _rev: undefined,
-            formFields: []
+            formFields: [],
+            tableData: []
         };
-    
-        // Улучшенная нормализация текста
-        const normalizedText = text.replace(/\n+/g, '\n').replace(/\r/g, '').trim();
-    
-        // Более точные регулярные выражения с явными границами
+
         const regexPatterns = {
             object: /Объект испытаний:\s*([^\n]+)/i,
             customer: /Заказчик:\s*([^\n]+)/i,
@@ -135,32 +189,21 @@ function Saved_Form() {
             endDate: /Дата и время окончания проведения испытаний:\s*([^\n]+)/i,
             weather: /Метеоусловия при проведении испытаний:\s*([^\n]+)/i,
             equipment: /Комплектность представляемого на тестовые испытания объекта:\s*([\s\S]+?)(?=\n\d+\.|\n7\.)/i,
-            results: /Результаты испытаний:\s*([\s\S]+?)(?=\n\s*Замечания и рекомендации|$)/i,
             remarks: /Замечания и рекомендации\s*\n([\s\S]+?)(?=\n\s*Выводы|$)/i,
             conclusions: /Выводы:\s*([\s\S]+)/i
         };
-    
-        // Функция для очистки и нормализации текста
-        const cleanText = (text) => {
-            return text
-                .replace(/\n/g, ' ')
-                .replace(/\s+/g, ' ')
-                .replace(/\s*,\s*/g, ', ')
-                .replace(/\s*\.\s*/g, '. ')
-                .replace(/\s*:\s*/g, ': ')
-                .trim();
-        };
-    
+
         // Извлекаем данные по всем полям
         const extractField = (label, pattern, idSuffix) => {
             const match = normalizedText.match(pattern);
             if (match && match[1]) {
+                // Убираем вызов cleanText как функции, просто используем match[1]
                 newForm.formFields.push({
                     label,
                     type: "text",
                     value: "",
                     id: `field_${Date.now()}_${idSuffix}`,
-                    answer: cleanText(match[1])
+                    answer: match[1].trim() // просто обрезаем пробелы
                 });
             } else {
                 console.warn(`Не удалось извлечь поле: ${label}`);
@@ -184,7 +227,6 @@ function Saved_Form() {
         // Порядок извлечения важен - от более специфичных к более общим
         extractField("Выводы", regexPatterns.conclusions, 12);
         extractField("Замечания и рекомендации", regexPatterns.remarks, 11);
-        extractField("Результаты испытаний", regexPatterns.results, 10);
         extractField("Комплектность представляемого на тестовые испытания объекта", regexPatterns.equipment, 9);
         extractField("Метеоусловия при проведении испытаний", regexPatterns.weather, 8);
         extractField("Дата и время окончания проведения испытаний", regexPatterns.endDate, 7);
@@ -198,9 +240,19 @@ function Saved_Form() {
         // Переворачиваем порядок полей, так как добавляли с конца
         newForm.formFields.reverse();
     
+        // Извлекаем таблицу результатов
+        const tableRows = extractResultsTable(cleanText);
+        if (tableRows.length > 0) {
+            newForm.tableData.push({
+                tableName: "Результаты испытаний",
+                tableData: tableRows
+            });
+        }
         return newForm;
     };
-
+    
+    
+    
     return (
         <div className="saved-forms-container">
             <Header></Header>

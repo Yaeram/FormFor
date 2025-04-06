@@ -3,20 +3,16 @@ import { useNavigate } from 'react-router-dom';
 import AddSelectField from './cp_NForm/Form/AddSelectField';
 import AddTextField from './cp_NForm/Form/AddTextField';
 import FormPreview from './cp_NForm/Preview/FormPreview';
-import Table_Form from './cp_NForm/Table_Form/Table_Form';
 import { Header } from '../../components/Header/Header';
 import { Footer } from '../../components/Footer/Footer';
 import './New_Form.css';
 import { v4 as uuidv4 } from 'uuid';
 import db from '../../PouchDB/pouchdb';
+import AddTable from './cp_NForm/Form/AddTable';
 
 function New_Form() {
     const [formFields, setFormFields] = useState([]);
     const [tableDataArray, setTableDataArray] = useState([]);
-    const [isTableCreationVisible, setIsTableCreationVisible] = useState(false);
-    const [tableName, setTableName] = useState('');
-    const [newTableRows, setNewTableRows] = useState(3);
-    const [newTableCols, setNewTableCols] = useState(3);
     const navigate = useNavigate();
     const [templateTitle, setTemplateTitle] = useState('');
     //
@@ -29,18 +25,8 @@ function New_Form() {
         return tag;
     };
 
-    const createEmptyTableData = (rows, cols) => {
-        return Array(rows).fill(null).map(() => Array(cols).fill(''));
-    };
-
-    const handleAddTable = () => {
-        const newTableData = {
-            tableName: tableName,
-            tableData: createEmptyTableData(newTableRows, newTableCols)
-        };
+    const handleAddTable = (newTableData) => {
         setTableDataArray([...tableDataArray, newTableData]);
-        setIsTableCreationVisible(false);
-        setTableName('');
     };
 
     const handleTableChange = (index, newTableData) => {
@@ -62,7 +48,6 @@ function New_Form() {
         }
         setFormFields([...formFields, { ...newField, id: uuidv4(), value: initialValue }]);
     };
-
 
     const handleFileChange = (fieldId, file) => {
         if (!file) {
@@ -114,22 +99,6 @@ function New_Form() {
         }
     };
 
-    const handleShowTableCreation = () => {
-        setIsTableCreationVisible(true);
-    };
-
-    const handleTableNameChange = (e) => {
-        setTableName(e.target.value);
-    };
-
-    const handleNewTableRowsChange = (e) => {
-        setNewTableRows(parseInt(e.target.value, 10) || 2); // Changed default to 2
-    };
-
-    const handleNewTableColsChange = (e) => {
-        setNewTableCols(parseInt(e.target.value, 10) || 2); // Changed default to 2
-    };
-
     return (
         <div className="new-template-page">
             <Header />
@@ -145,51 +114,21 @@ function New_Form() {
                                 onChange={(e) => setTemplateTitle(e.target.value)}
                             />
                         </label>
-                        <div className='new-form-non-table-creations'>
+                        <div className='new-form-creation-fields'>
                             <AddTextField onAddField={addField} />
                             <AddSelectField onAddField={addField} />
-                        </div>
-                    
-                        {/* <button onClick={handleShowTableCreation}>Создать таблицу</button> */}
-                        {/* {isTableCreationVisible && (
-                            <div className="table-creation-settings">
-                                <label>
-                                    Название таблицы:
-                                    <input
-                                        type="text"
-                                        value={tableName}
-                                        onChange={handleTableNameChange}
-                                    />
-                                </label>
-                                <label>
-                                    Количество строк:
-                                    <input
-                                        type="number"
-                                        value={newTableRows}
-                                        onChange={(e) => setNewTableRows(parseInt(e.target.value, 10) || 2)}
-                                    />
-                                </label>
-                                <label>
-                                    Количество столбцов:
-                                    <input
-                                        type="number"
-                                        value={newTableCols}
-                                        onChange={(e) => setNewTableCols(parseInt(e.target.value, 10) || 2)}
-                                    />
-                                </label>
-                                <button onClick={handleAddTable}>Добавить таблицу</button>
-                            </div>
-                        )} */}
+                            <AddTable handleAddTable={handleAddTable}/>
+                        </div>                      
                     </div>
                     <FormPreview
-                            formFields={formFields}
-                            tableDataArray={tableDataArray}
-                            onDeleteField={handleDeleteField}
-                            onDeleteTable={handleDeleteTable}
-                            handleFileChange={handleFileChange}
-                            onTableChange={handleTableChange}
-                            templateTitle={templateTitle}
-                        />
+                        formFields={formFields}
+                        tableDataArray={tableDataArray}
+                        onDeleteField={handleDeleteField}
+                        onDeleteTable={handleDeleteTable}
+                        handleFileChange={handleFileChange}
+                        onTableChange={handleTableChange}
+                        templateTitle={templateTitle}
+                    />
                 </div>
                 <button onClick={saveTemplate}>Сохранить шаблон</button>
             </div>

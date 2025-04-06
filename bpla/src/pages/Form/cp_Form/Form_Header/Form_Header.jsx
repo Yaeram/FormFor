@@ -4,7 +4,9 @@ import './FormHeader.css'
 function FormHeader({ templateTitle, formTitle, setFormTitle, toggleEditMode, isEditMode }) {
   return (
     <div className='form-header'>
-      <h2>{templateTitle}</h2>
+      <button onClick={toggleEditMode}>
+        {isEditMode ? 'Выключить режим редактирования' : 'Включить режим редактирования'}
+      </button>
       <label>
         Название анкеты:
         <input
@@ -13,9 +15,7 @@ function FormHeader({ templateTitle, formTitle, setFormTitle, toggleEditMode, is
           onChange={(e) => setFormTitle(e.target.value)}
         />
       </label>
-      <button onClick={toggleEditMode}>
-        {isEditMode ? 'Выключить режим редактирования' : 'Включить режим редактирования'}
-      </button>
+      <h3>{templateTitle}</h3>
     </div>
   );
 }

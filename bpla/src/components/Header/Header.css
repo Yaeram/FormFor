@@ -3,7 +3,7 @@
     flex-direction: row;
     background-color: rgb(158, 158, 158);
     border-bottom: 1px solid #3b3b3b;
-    height: 10vh;
+    min-height: 10vh;
     width: 100%;
     position: sticky;
     top: 0;  /* Фиксирует header на верхней границе */

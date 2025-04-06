@@ -1,8 +1,10 @@
 .edit-mode {
     padding: 20px;
     background-color: #f5f5f5;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     border-radius: 5px;
     margin: 20px 0;
+    overflow-y: scroll;
 }
 
 .edit-mode h3 {
@@ -36,7 +38,8 @@
     box-sizing: border-box;
 }
 
-.edit-field button {
+.edit-field button,
+.edit-table button {
     padding: 6px 12px;
     background-color: rgb(158, 158, 158);
     color: white;
@@ -47,7 +50,8 @@
     margin-top: 5px;
 }
 
-.edit-field button:hover {
+.edit-field button:hover,
+.edit-table button:hover {
   background-color: rgb(122, 122, 122);
 }
 
@@ -73,6 +77,22 @@
 .edit-field video {
     max-width: 100%;
     margin-top: 10px;
+}
+
+.edit-table label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: #555;
+}
+
+.edit-table input[type="text"] {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
 }
 
 table {

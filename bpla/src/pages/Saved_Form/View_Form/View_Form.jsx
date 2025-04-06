@@ -17,7 +17,7 @@ function View_Form() {
     const [formCreatedAt, setFormCreatedAt] = useState(null);
     const [isEditMode, setIsEditMode] = useState(false);
     const location = useLocation();
-    const navigate = useNavigate();
+    
 
     useEffect(() => {
         const loadFormData = async () => {
@@ -53,6 +53,17 @@ function View_Form() {
         loadFormData();
     }, [formId, location.state]);
 
+    const handleUpdateTableName = (tableIndex, newName) => {
+        setTableDataArray(prev => 
+            prev.map((table, index) => 
+                index === tableIndex 
+                    ? { ...table, tableName: newName } 
+                    : table
+            )
+        );
+    };
+
+
     const handleUpdateField = (fieldId, newLabel) => {
         setFormData(prevData =>
             prevData.map(field =>
@@ -80,6 +91,13 @@ function View_Form() {
             )
         );
     };
+
+    const handleTableChange = (index, newTableData) => {
+        const updatedTableDataArray = [...tableDataArray];
+        updatedTableDataArray[index] = newTableData;
+        setTableDataArray(updatedTableDataArray);
+    };
+    
 
     const handleSaveChanges = async () => {
         try {
@@ -125,6 +143,7 @@ function View_Form() {
                             formData={formData} 
                             canEdit={false} 
                             tableDataArray={tableDataArray}
+                            onUpdateTable={handleTableChange}
                         />
                     </>
                 ) : (
@@ -137,6 +156,9 @@ function View_Form() {
                             onDeleteField={handleDeleteField}
                             onUpdateAnswer={handleUpdateAnswer}
                             saveChanges={handleSaveChanges}
+                            tableDataArray={tableDataArray}
+                            handleTableLabelChange={handleUpdateTableName}
+                            onUpdateTable={handleTableChange}
                         />
                     </>
                 )}

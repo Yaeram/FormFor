@@ -1,6 +1,6 @@
 .view-form-container {
     padding: 20px;
-    max-width: 800px;
+    width: 70%;
     margin: 0 auto;
     flex: 6;
 }
@@ -10,4 +10,20 @@
     display: flex;
     flex-direction: column;
 }
+
+.view-form-page button {
+    padding: 10px 15px;
+    margin-bottom: 10px;
+    background-color: rgb(158, 158, 158);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9em;
+    transition: background-color 0.3s;
+}
+
+.view-form-page button:hover {
+    background-color: rgb(122, 122, 122);
+  }
 

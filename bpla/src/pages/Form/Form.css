@@ -2,6 +2,29 @@
     height: 100%;
     display: flex;
     flex-direction: column;
+    align-items: center;
+}
+
+.form-content {
+    width: 70%;
+    flex: 6;
+}
+
+.form-content h3 {
+    margin-bottom: 20px;
+    color: #333;
+    font-size: 1.5em;
+}
+
+.edit-mode-layout > div {
+    flex: 1;
+}
+
+.edit-mode-add-fields {
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
 }
 
 

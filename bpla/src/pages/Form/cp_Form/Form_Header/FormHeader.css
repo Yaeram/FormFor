@@ -41,6 +41,7 @@
 
 .form-header button {
     padding: 10px 15px;
+    margin-bottom: 10px;
     background-color: rgb(158, 158, 158);
     color: white;
     border: none;

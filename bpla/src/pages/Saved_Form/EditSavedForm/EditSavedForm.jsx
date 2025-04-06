@@ -10,6 +10,9 @@ function EditSavedForm({
     onDeleteField = () => {},
     onUpdateAnswer = () => {},
     saveChanges = () => {},
+    tableDataArray,
+    onUpdateTableName,
+    onUpdateTable
 }) {
     const initializeField = (field) => ({
         id: field.id || uuidv4(),
@@ -84,6 +87,25 @@ function EditSavedForm({
         setCurrentFormFields(updatedFields);
         onUpdateOptions(fieldId, updatedFields.find(f => f.id === fieldId).options);
     };
+
+    const handleCellChange = (tableIndex, rowIndex, colIndex, value) => {
+        const updatedTableDataArray = [...tableDataArray];
+        if (!updatedTableDataArray[tableIndex] || !Array.isArray(updatedTableDataArray[tableIndex].tableData)) {
+            console.warn(`Invalid table index: ${tableIndex}.  tableDataArray:`, updatedTableDataArray);
+            return;
+        }
+        if (!updatedTableDataArray[tableIndex].tableData[rowIndex] || !Array.isArray(updatedTableDataArray[tableIndex].tableData[rowIndex])) {
+            console.warn(`Invalid row index: ${rowIndex} in table ${tableIndex}.  Row:`, updatedTableDataArray[tableIndex]);
+            return;
+        }
+
+        updatedTableDataArray[tableIndex].tableData[rowIndex][colIndex] = value;
+        onUpdateTable(tableIndex, updatedTableDataArray[tableIndex]);
+    };
+
+    const handleTableLabelChange = (event, tableId) => {
+        onUpdateTableName(tableId, event.target.value)
+    }
 
     const handleAnswerChange = (fieldId, value) => {
         const updatedFields = currentFormFields.map(field =>
@@ -185,23 +207,26 @@ function EditSavedForm({
                                 onChange={(e) => handleUpdateLabel(field.id, e.target.value)}
                             />
                         </label>
-                        <button 
-                            className="delete-field-btn"
-                            onClick={() => handleDelete(field.id)}
-                        >
-                            Удалить поле
-                        </button>
                     </div>
 
                     {field.type === 'text' && (
-                        <label>
-                            Ответ:
-                            <input
-                                type="text"
-                                value={field.answer || ''}
-                                onChange={(e) => handleAnswerChange(field.id, e.target.value)}
-                            />
-                        </label>
+                        <>
+                            <label>
+                                Ответ:
+                                <input
+                                    type="text"
+                                    value={field.answer || ''}
+                                    onChange={(e) => handleAnswerChange(field.id, e.target.value)}
+                                />
+                            </label>
+                            <button 
+                                className="delete-field-btn"
+                                onClick={() => handleDelete(field.id)}
+                                >
+                                Удалить поле
+                            </button>
+                        </>
+                        
                     )}
 
                     {field.type === 'select' && (
@@ -296,9 +321,41 @@ function EditSavedForm({
                                 ))}
                             </div>
                         </div>
-                    )}
+                    )}      
                 </div>
             ))}
+
+            {tableDataArray && tableDataArray.length > 0 && (
+                        tableDataArray.map((tableData, tableIndex) => (
+                            <div key={tableIndex} className='edit-table'>
+                                <label>
+                                Название таблицы:
+                                <input
+                                    type="text"
+                                    value={tableData.tableName || ''}
+                                    onChange={(event) => handleTableLabelChange(event, tableIndex)}
+                                />
+                                </label>
+                                <table>
+                                    <tbody>
+                                        {tableData.tableData.map((row, rowIndex) => (
+                                            <tr key={rowIndex}>
+                                                {row.map((cell, colIndex) => (
+                                                    <td key={colIndex}>
+                                                        <input
+                                                            type="text"
+                                                            value={cell}
+                                                            onChange={(e) => handleCellChange(tableIndex, rowIndex, colIndex, e.target.value)}
+                                                        />
+                                                    </td>
+                                                ))}
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        ))
+                    )}
 
             <div className="form-actions">
                 <button 
