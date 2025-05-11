@@ -100,26 +100,55 @@ function View_Form() {
     
 
     const handleSaveChanges = async () => {
+    try {
+        // Обновление локальной базы (например, PouchDB)
+        const doc = await db.get(formId);
+        const updatedDoc = {
+            ...doc,
+            formFields: formData,
+            tableData: tableDataArray,
+            updatedAt: new Date()
+        };
+        await db.put(updatedDoc);
+        console.log('Form updated locally:', updatedDoc);
+
         try {
-            const doc = await db.get(formId);
-            const updatedDoc = {
-                ...doc,
-                formFields: formData,
-                tableData: tableDataArray,
-                updatedAt: new Date()
-            };
-            
-            await db.put(updatedDoc);
-            console.log('Form updated successfully:', updatedDoc);
-            setIsEditMode(false);
-            
-            // Обновляем состояние, чтобы изменения сразу отобразились
-            setFormData([...formData]);
-            setTableDataArray([...tableDataArray]);
-        } catch (error) {
-            console.error('Error saving form:', error);
+            const response = await fetch(`http://localhost:8000/forms/${formId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    ...updatedDoc,
+                    createdAt: doc.createdAt,
+                    templateId: doc.templateId,
+                    _id: doc._id,
+                    _rev: doc._rev,
+                    type: doc.type,
+                    title: doc.title,
+                    tag: doc.tag,
+                    formFields: formData,
+                    tableData: tableDataArray
+                })
+            });
+
+            if (!response.ok) {
+                const errText = await response.text();
+                alert(`Ошибка при сохранении на сервер: ${errText}`);
+            } else {
+                console.log('Form updated on server');
+            }
+        } catch (serverError) {
+            alert(`Сетевая ошибка при обновлении формы: ${serverError.message}`);
         }
-    };
+
+        setIsEditMode(false);
+        setFormData([...formData]);
+        setTableDataArray([...tableDataArray]);
+    } catch (error) {
+        console.error('Error saving form locally:', error);
+    }
+};
 
     if (!formData) {
         return <div>Загрузка...</div>;

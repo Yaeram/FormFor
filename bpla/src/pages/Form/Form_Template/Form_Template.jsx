@@ -75,9 +75,9 @@ function Form_Template() {
 
         await db.put(defaultTemplate);
         console.log("Шаблон по умолчанию успешно добавлен");
-        return true; // Шаблон был добавлен
+        return true;
       }
-      return false; // Шаблон уже существует
+      return false;
     } catch (error) {
       console.error("Ошибка при проверке/добавлении шаблона по умолчанию:", error);
       return false;
@@ -86,10 +86,8 @@ function Form_Template() {
 
   const loadTemplates = async () => {
     try {
-      // Сначала проверяем и добавляем шаблон по умолчанию
       const wasAdded = await checkAndAddDefaultTemplate();
       
-      // Затем загружаем все шаблоны
       const result = await db.allDocs({ 
         include_docs: true, 
         startkey: 'template_', 
@@ -103,7 +101,6 @@ function Form_Template() {
         setTemplates([]);
       }
       
-      // Если был добавлен новый шаблон, показываем сообщение
       if (wasAdded) {
         setTimeout(() => {
           alert('Был добавлен шаблон по умолчанию "Протокол испытаний FPV БПЛА мультироторного типа"');
@@ -119,7 +116,6 @@ function Form_Template() {
     loadTemplates();
   }, []);
 
-  // ... остальной код компонента остается без изменений ...
   const handleTemplateSelect = (templateId) => {
     navigate(`/form/${templateId}`);
   };
@@ -139,14 +135,28 @@ function Form_Template() {
     if (confirmed) {
       try {
         await db.remove(templateToDelete.id, templateToDelete.rev);
-        alert('Шаблон успешно удален!');
+
+        try {
+          const response = await fetch(
+            `http://localhost:8000/templates/${templateToDelete.id}`, {
+            method: 'DELETE'
+          });
+
+          console.log("Успешно удалено с сервера.", response)
+        } catch(error) {
+          console.error("Ошибка при удалении с сервера.", error)
+          alert('Шаблон удален локально, но возникла ошибка при удалении с сервера')
+        }
+
         loadTemplates();
+        console.log("Шаблон  успешно удален с сервера.")
+
       } catch (error) {
         console.error('Ошибка при удалении шаблона:', error);
       }
     }
-    setTemplateToDelete(null);
-  };
+  setTemplateToDelete(null);
+};
 
   return (
     <div className="form-template-container">

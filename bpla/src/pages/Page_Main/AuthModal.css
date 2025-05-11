@@ -1,0 +1,46 @@
+.auth-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.auth-modal__content {
+    background: white;
+    padding: 2rem;
+    border-radius: 10px;
+    width: 300px;
+    position: relative;
+}
+
+.auth-modal__close {
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    border: none;
+    background: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+.auth-modal__tabs button {
+    margin: 0 5px;
+    padding: 5px 10px;
+}
+
+.auth-modal__tabs .active {
+    font-weight: bold;
+    border-bottom: 2px solid #333;
+}
+
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 15px;
+}

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import AddSelectField from './cp_NForm/Form/AddSelectField';
 import AddTextField from './cp_NForm/Form/AddTextField';
@@ -85,17 +86,40 @@ function New_Form() {
                 tableData: tableDataArray,
                 type: 'template',
                 tag: templateTag,
-                createdAt: Date.now()
+                createdAt: Date.now(),
             };
 
-            console.log("Saving template data:", templateData); // Add this line
+            console.log("Saving template data:", templateData);
 
-            await db.put(templateData);
+            const response = await db.put(templateData);
+        
+            const dataWithRev = {
+                ...templateData,
+                _rev: response.rev
+            };
+            
+            try {
+                const response = await axios.post(
+                    'http://localhost:8000/templates/', 
+                    dataWithRev,
+                    {
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    }
+                );
+                
+                console.log('Успешно сохранено на удаленный сервер:', response.data);
+            } catch (apiError) {
+                console.error('Не удалось сохранить на удаленный сервер:', apiError);
+                alert(`Шаблон сохранен локально, но возникла ошибка при сохранении на сервер`);
+            }
+
             alert(`Шаблон анкеты "${templateTitle}" сохранен с тегом: ${templateTag}!`);
             navigate('/Form_Template');
         } catch (error) {
             console.error('Error saving template:', error);
-            alert(`Ошибка при сохранении шаблона: ${error.message}`); // Improved error message
+            alert(`Ошибка при сохранении шаблона: ${error.message}`);
         }
     };
 

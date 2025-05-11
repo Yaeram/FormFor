@@ -25,20 +25,40 @@ function Tag({ defaultTitle, formTitle, formData, templateId, onComplete, tableD
                 _id: `form_${uuidv4()}`,
                 templateId: templateId,
                 formFields: formData,
-                tableData:  tableDataArray,
+                tableData: tableDataArray,
                 type: 'form',
                 title: formTitle,
                 tag: formTag,
-                createdAt: Date.now()  //  Добавляем дату создания
+                createdAt: Date.now()
             };
-            await db.put(filledFormData);
-            onComplete(formTag, filledFormData); // Notify parent with the generated tag and filled form data
+
+            const filled_responce = await db.put(filledFormData);
+            console.log(filledFormData)
+            const dataWithRev = {
+                ...filledFormData,
+                _rev: filled_responce.rev
+            }
+
+            const response = await fetch('http://localhost:8000/forms/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(dataWithRev)
+            });
+
+            if (!response.ok) {
+                throw new Error(`Server error: ${response.statusText}`);
+            }
+
+            onComplete(formTag, filledFormData);
         } catch (error) {
             console.error('Error saving filled form:', error);
         } finally {
             setIsGenerating(false);
         }
     };
+
 
     return (
         <button onClick={handleSave} disabled={isGenerating} className='save-template-button'>

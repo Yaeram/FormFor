@@ -40,10 +40,12 @@ function Form() {
     useEffect(() => {
         const loadTemplate = async () => {
             try {
-                const template = await db.get(templateId);
-                setTemplate(template);
-                if (template && template.formFields && Array.isArray(template.formFields)) {
-                    const initialFormData = template.formFields.map(field => ({ ...field, answer: '' }));
+                const localTemplate = await db.get(templateId);
+                console.log('Загружено из локальной бд:', localTemplate)
+                setTemplate(localTemplate);
+
+                if (localTemplate && localTemplate.formFields && Array.isArray(localTemplate.formFields)) {
+                    const initialFormData = localTemplate.formFields.map(field => ({ ...field, answer: '' }));
                     setFormData(initialFormData);
                     originalFormDataRef.current = initialFormData;
                 } else {
@@ -51,12 +53,24 @@ function Form() {
                     setFormData([]);
                     originalFormDataRef.current = [];
                 }
-                setTableDataArray(template.tableData || []);
+
+                setTableDataArray(localTemplate.tableData || []);
             } catch (error) {
-                console.error('Error loading template:', error);
+                console.error('Ошибка при загрузке шаблона из локальной базы:', error);
+            }
+
+            try {
+                const response = await fetch(`http://localhost:8000/templates/${templateId}`);
+                if (!response.ok) {
+                    throw new Error(`Ошибка при загрузке с сервера: ${response.status}`);
+            }
+
+            const serverTemplate = await response.json();
+            console.log('Загружено с сервера:', serverTemplate);
+            } catch (error) {
+                console.error('Ошибка при загрузке шаблона с сервера:', error);
             }
         };
-
         loadTemplate();
     }, [templateId]);
 
@@ -175,32 +189,57 @@ function Form() {
     };
 
 
-    const saveEditedTemplateConfirmed = async () => {
-        try {
-            const currentDoc = await db.get(templateId);
-            const updatedTemplate = { 
-                ...currentDoc, 
-                formFields: formData, 
-                tableData: tableDataArray 
-            };
-            formData.map(value => {
-                value.answer = ""
-            })
-            await db.put(updatedTemplate);
-            setConfirmationDialog({
-                isOpen: true,
-                message: 'Шаблон успешно сохранен!',
-                onConfirm: () => setConfirmationDialog({ ...confirmationDialog, isOpen: false, isConfirmOnly: true }),
-                onClose: null,
-                isConfirmOnly: true
-            });
-            setIsEditMode(false);
-            setUnsavedChanges(false);
-            setShowConfirmationDialog(false);
-        } catch (error) {
-            console.error('Ошибка при сохранении шаблона:', error);
-        }
+const saveEditedTemplateConfirmed = async () => {
+  try {
+    const currentDoc = await db.get(templateId);
+    const clearedFormData = formData.map(field => ({
+      ...field,
+      answer: ""
+    }));
+
+    const updatedTemplate = {
+      ...currentDoc,
+      formFields: clearedFormData,
+      tableData: tableDataArray
     };
+    await db.put(updatedTemplate);
+    const response = await fetch(`http://localhost:8000/templates/${templateId}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        _id: updatedTemplate._id,
+        _rev: updatedTemplate._rev,
+        title: updatedTemplate.title,
+        type: updatedTemplate.type,
+        tag: updatedTemplate.tag,
+        createdAt: updatedTemplate.created_at || Date.now(),
+        formFields: clearedFormData,
+        tableData: tableDataArray
+      })
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.detail || "Ошибка при сохранении на сервере");
+    }
+
+    setConfirmationDialog({
+      isOpen: true,
+      message: 'Шаблон успешно сохранен!',
+      onConfirm: () => setConfirmationDialog({ ...confirmationDialog, isOpen: false, isConfirmOnly: true }),
+      onClose: null,
+      isConfirmOnly: true
+    });
+
+    setIsEditMode(false);
+    setUnsavedChanges(false);
+    setShowConfirmationDialog(false);
+  } catch (error) {
+    console.error('Ошибка при сохранении шаблона:', error);
+  }
+};
 
     const handleFormSaveComplete = (formTag) => {
         setConfirmationDialog({
@@ -215,7 +254,6 @@ function Form() {
 
     return (
         <div className="form-container">
-            {console.log(tableDataArray)}
             <Header></Header>
             <div className='form-content'>
                 <Form_Header
