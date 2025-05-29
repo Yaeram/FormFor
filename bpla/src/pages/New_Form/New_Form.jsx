@@ -76,52 +76,68 @@ function New_Form() {
         setFormFields(formFields.filter(field => field.id !== id));
     };
 
-    const saveTemplate = async () => {
-        try {
-            const templateTag = generateTag();
-            const templateData = {
-                _id: `template_${uuidv4()}`,
-                title: templateTitle,
-                formFields: formFields || [],
-                tableData: tableDataArray,
-                type: 'template',
-                tag: templateTag,
-                createdAt: Date.now(),
-            };
+const saveTemplate = async () => {
+    try {
+        const templateTag = generateTag();
+        const username = localStorage.getItem('username');
 
-            console.log("Saving template data:", templateData);
+        const templateData = {
+            _id: `template_${uuidv4()}`,
+            title: templateTitle,
+            formFields: formFields || [],
+            tableData: tableDataArray,
+            type: 'template',
+            tag: templateTag,
+            createdAt: Date.now(),
+            _rev: undefined, // для сервера, будет обновлено
+            username: username // добавляем для передачи на сервер
+        };
 
-            const response = await db.put(templateData);
-        
-            const dataWithRev = {
-                ...templateData,
-                _rev: response.rev
-            };
-            
+        const { username: _, ...pouchData } = templateData; // не сохраняем username в PouchDB
+
+        const response = await db.put(pouchData);
+
+        const dataWithRev = {
+            ...templateData,
+            _rev: response.rev
+        };
+
+        const isConnected = localStorage.getItem('connected') === 'true';
+        const isAuthorized = localStorage.getItem('authorized') === 'true';
+
+        if (isConnected && isAuthorized) {
             try {
-                const response = await axios.post(
-                    'http://localhost:8000/templates/', 
-                    dataWithRev,
-                    {
-                        headers: {
-                            'Content-Type': 'application/json'
-                        }
-                    }
-                );
-                
-                console.log('Успешно сохранено на удаленный сервер:', response.data);
+                const serverResponse = await fetch('http://localhost:8000/templates/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(dataWithRev)
+                });
+
+                if (!serverResponse.ok) {
+                    throw new Error(`Server error: ${serverResponse.status}`);
+                }
+
+                const serverData = await serverResponse.json();
+                console.log('Сохранено на сервере:', serverData);
             } catch (apiError) {
-                console.error('Не удалось сохранить на удаленный сервер:', apiError);
+                console.error('Ошибка при сохранении на сервер:', apiError);
                 alert(`Шаблон сохранен локально, но возникла ошибка при сохранении на сервер`);
             }
-
-            alert(`Шаблон анкеты "${templateTitle}" сохранен с тегом: ${templateTag}!`);
-            navigate('/Form_Template');
-        } catch (error) {
-            console.error('Error saving template:', error);
-            alert(`Ошибка при сохранении шаблона: ${error.message}`);
+        } else {
+            console.log("Нет подключения или авторизации — сохраняем только локально");
         }
-    };
+
+        alert(`Шаблон анкеты "${templateTitle}" сохранен с тегом: ${templateTag}!`);
+        navigate('/Form_Template');
+    } catch (error) {
+        console.error('Ошибка при сохранении шаблона:', error);
+        alert(`Ошибка при сохранении шаблона: ${error.message}`);
+    }
+};
+
+
 
     return (
         <div className="new-template-page">

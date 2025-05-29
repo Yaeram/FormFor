@@ -20,9 +20,9 @@ class Main extends Component {
                 <Header />
                 <div className="main-page__content">
                     <button onClick={this.toggleModal}>Войти / Регистрация</button>
-                    <div>{Text().block1}</div>
+                    {/* <div>{Text().block1}</div>
                     <div>{Text().block2}</div>
-                    <div>{Text().block3}</div>
+                    <div>{Text().block3}</div> */}
                 </div>
                 {this.state.showModal && <AuthModal onClose={this.toggleModal} />}
                 <Footer />

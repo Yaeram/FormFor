@@ -1,12 +1,10 @@
-# routers/template_routes.py
-import uuid
-from datetime import datetime
-from typing import List
-
 from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.orm import Session
+from datetime import datetime
+import uuid
+from typing import List
 
-from ..models import Template, TemplateCreate
+from ..models import Template, TemplateCreate, TemplateResponse
 from ..database import get_db
 
 router = APIRouter(prefix="/templates", tags=["Templates"])
@@ -22,7 +20,8 @@ async def create_template(template: TemplateCreate, db: Session = Depends(get_db
             created_at=datetime.fromtimestamp(template.created_at / 1000),
             form_fields=template.form_fields,
             table_data=template.table_data,
-            rev=template.rev or f"1-{uuid.uuid4().hex}"
+            rev=template.rev or f"1-{uuid.uuid4().hex}",
+            username=template.username
         )
         db.add(db_template)
         db.commit()
@@ -35,44 +34,32 @@ async def create_template(template: TemplateCreate, db: Session = Depends(get_db
         }
     except Exception as e:
         db.rollback()
-        return {
-            "error": str(e),
-            "template": template.dict(by_alias=True)
-        }
+        raise HTTPException(status_code=400, detail=str(e))
 
-@router.get("/", response_model=List[dict])
+@router.get("/ids")
+async def get_template_ids(db: Session = Depends(get_db)):
+    templates = db.query(Template.id).all()
+    return [t[0] for t in templates]
+
+@router.get("/", response_model=List[TemplateResponse])
 async def get_templates(db: Session = Depends(get_db)):
     templates = db.query(Template).all()
-    return [
-        {
-            "title": t.title,
-            "formFields": t.form_fields,
-            "tableData": t.table_data,
-            "type": t.type,
-            "tag": t.tag,
-            "createdAt": int(t.created_at.timestamp() * 1000),
-            "_id": t.id,
-            "_rev": t.rev
-        }
-        for t in templates
-    ]
+    return templates
+
+
+@router.get("/by_user/{username}", response_model=List[dict])
+async def get_templates_by_user(username: str, db: Session = Depends(get_db)):
+    templates = db.query(Template).filter(Template.username == username).all()
+    return [_to_response_model(t) for t in templates]
+
 
 @router.get("/{template_id}")
 async def get_template(template_id: str, db: Session = Depends(get_db)):
     template = db.query(Template).filter(Template.id == template_id).first()
     if not template:
         raise HTTPException(status_code=404, detail="Template not found")
+    return _to_response_model(template)
 
-    return {
-        "title": template.title,
-        "formFields": template.form_fields,
-        "tableData": template.table_data,
-        "type": template.type,
-        "tag": template.tag,
-        "createdAt": int(template.created_at.timestamp() * 1000),
-        "_id": template.id,
-        "_rev": template.rev
-    }
 
 @router.put("/{template_id}")
 async def update_template(template_id: str, template: TemplateCreate, db: Session = Depends(get_db)):
@@ -81,15 +68,14 @@ async def update_template(template_id: str, template: TemplateCreate, db: Sessio
         if not existing_template:
             raise HTTPException(status_code=404, detail="Template not found")
 
-        created_at = datetime.fromtimestamp(template.created_at / 1000)
-
         existing_template.title = template.title
         existing_template.type = template.type
         existing_template.tag = template.tag
-        existing_template.created_at = created_at
+        existing_template.created_at = datetime.fromtimestamp(template.created_at / 1000)
         existing_template.form_fields = template.form_fields
         existing_template.table_data = template.table_data
-        existing_template.rev = f"2-{uuid.uuid4().hex}"
+        existing_template.rev = template.rev
+        existing_template.username = template.username
 
         db.commit()
         db.refresh(existing_template)
@@ -103,6 +89,7 @@ async def update_template(template_id: str, template: TemplateCreate, db: Sessio
         db.rollback()
         raise HTTPException(status_code=400, detail=str(e))
 
+
 @router.delete("/{template_id}")
 async def delete_template(template_id: str, db: Session = Depends(get_db)):
     try:
@@ -112,8 +99,20 @@ async def delete_template(template_id: str, db: Session = Depends(get_db)):
 
         db.delete(template)
         db.commit()
-
         return {"message": "Template deleted successfully"}
     except Exception as e:
         db.rollback()
         raise HTTPException(status_code=400, detail=str(e))
+
+
+def _to_response_model(t: Template) -> dict:
+    return {
+        "title": t.title,
+        "formFields": t.form_fields,
+        "tableData": t.table_data,
+        "type": t.type,
+        "tag": t.tag,
+        "createdAt": int(t.created_at.timestamp() * 1000),
+        "_id": t.id,
+        "_rev": t.rev
+    }

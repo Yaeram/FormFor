@@ -1,6 +1,6 @@
 // View_Form.js
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import { useParams, useLocation } from 'react-router-dom';
 import db from '../../../PouchDB/pouchdb';
 import DisplayModeSection from '../../Form/cp_Form/DisplayModeSection/DisplayModeSection';
 import EditSavedForm from '../EditSavedForm/EditSavedForm';
@@ -19,7 +19,7 @@ function View_Form() {
     const location = useLocation();
     
 
-    useEffect(() => {
+    useEffect(() => {  
         const loadFormData = async () => {
             try {
                 let initialFormData = [];
@@ -27,12 +27,12 @@ function View_Form() {
                 let form;
 
                 if (location.state && location.state.formData) {
-                    initialFormData = location.state.formData;
-                    initialTableData = location.state.tableData || [];
-                    setFormTitle(location.state.title || '');
-                    setFormTag(location.state.tag || '');
-                    setFormCreatedAt(location.state.createdAt || new Date());
-                    console.log("View_Form: Received data from location.state:", location.state);
+                    initialFormData = location.state.formData.formFields;
+                    initialTableData = location.state.formData.tableData || [];
+                    setFormTitle(location.state.formData.title || '');
+                    setFormTag(location.state.formData.tag || '');
+                    setFormCreatedAt(location.state.formData.createdAt || new Date());
+                    console.log("View_Form: Received data from location.state:", initialFormData);
                 } else {
                     form = await db.get(formId);
                     console.log("View_Form: Loaded form from PouchDB:", form);
@@ -99,55 +99,71 @@ function View_Form() {
     };
     
 
-    const handleSaveChanges = async () => {
-    try {
-        // Обновление локальной базы (например, PouchDB)
-        const doc = await db.get(formId);
-        const updatedDoc = {
-            ...doc,
-            formFields: formData,
-            tableData: tableDataArray,
-            updatedAt: new Date()
+  const handleSaveChanges = async () => {
+  try {
+    const isConnected = localStorage.getItem('connected') === 'true';
+    const isAuthorized = localStorage.getItem('authorized') === 'true';
+    const username = localStorage.getItem('username');
+
+    const doc = await db.get(formId);
+    const updatedDoc = {
+      ...doc,
+      formFields: formData,
+      tableData: tableDataArray,
+      username: username
+    };
+
+    await db.put(updatedDoc);
+    console.log('Form updated locally:', updatedDoc);
+
+    if (isConnected && isAuthorized) {
+      try {
+        const serverData = {
+          _id: updatedDoc._id,
+          templateId: updatedDoc.templateId,
+          title: updatedDoc.title,
+          type: updatedDoc.type,
+          tag: updatedDoc.tag,
+          createdAt: updatedDoc.createdAt, 
+          formFields: updatedDoc.formFields,
+          tableData: updatedDoc.tableData,
+          _rev: updatedDoc._rev,
+          username: updatedDoc.username
         };
-        await db.put(updatedDoc);
-        console.log('Form updated locally:', updatedDoc);
 
-        try {
-            const response = await fetch(`http://localhost:8000/forms/${formId}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    ...updatedDoc,
-                    createdAt: doc.createdAt,
-                    templateId: doc.templateId,
-                    _id: doc._id,
-                    _rev: doc._rev,
-                    type: doc.type,
-                    title: doc.title,
-                    tag: doc.tag,
-                    formFields: formData,
-                    tableData: tableDataArray
-                })
-            });
+        const response = await fetch(`http://localhost:8000/forms/${formId}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(serverData)
+        });
 
-            if (!response.ok) {
-                const errText = await response.text();
-                alert(`Ошибка при сохранении на сервер: ${errText}`);
-            } else {
-                console.log('Form updated on server');
-            }
-        } catch (serverError) {
-            alert(`Сетевая ошибка при обновлении формы: ${serverError.message}`);
+        if (!response.ok) {
+          const errorData = await response.json();
+          console.error('Server validation errors:', errorData.detail);
+          throw new Error('Ошибка сервера при обновлении формы');
         }
 
-        setIsEditMode(false);
-        setFormData([...formData]);
-        setTableDataArray([...tableDataArray]);
-    } catch (error) {
-        console.error('Error saving form locally:', error);
+        console.log('Form successfully updated on server');
+        alert('Изменения сохранены и синхронизированы с сервером');
+      } catch (serverError) {
+        console.error('Server sync error:', serverError);
+        alert('Изменения сохранены локально, но не синхронизированы с сервером');
+      }
+    } else {
+      console.log('No connection - saved locally only');
+      alert('Изменения сохранены локально (синхронизация при подключении)');
     }
+
+    setIsEditMode(false);
+    setFormData([...formData]);
+    setTableDataArray([...tableDataArray]);
+
+  } catch (error) {
+    console.error('Error saving form:', error);
+    alert(`Ошибка при сохранении: ${error.message}`);
+  }
 };
 
     if (!formData) {

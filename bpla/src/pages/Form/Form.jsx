@@ -189,57 +189,75 @@ function Form() {
     };
 
 
-const saveEditedTemplateConfirmed = async () => {
-  try {
-    const currentDoc = await db.get(templateId);
-    const clearedFormData = formData.map(field => ({
-      ...field,
-      answer: ""
-    }));
+    const saveEditedTemplateConfirmed = async () => {
+    try {
+        const username = localStorage.getItem('username'); 
+        const isOnline = localStorage.getItem('connected')
+        const isAuthorized = localStorage.getItem('authorized') === 'true';
 
-    const updatedTemplate = {
-      ...currentDoc,
-      formFields: clearedFormData,
-      tableData: tableDataArray
-    };
-    await db.put(updatedTemplate);
-    const response = await fetch(`http://localhost:8000/templates/${templateId}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        _id: updatedTemplate._id,
-        _rev: updatedTemplate._rev,
-        title: updatedTemplate.title,
-        type: updatedTemplate.type,
-        tag: updatedTemplate.tag,
-        createdAt: updatedTemplate.created_at || Date.now(),
+        const currentDoc = await db.get(templateId);
+        const clearedFormData = formData.map(field => ({
+        ...field,
+        answer: ""
+        }));
+
+        const updatedTemplate = {
+        ...currentDoc,
         formFields: clearedFormData,
-        tableData: tableDataArray
-      })
-    });
+        tableData: tableDataArray,
+        username: username
+        };
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.detail || "Ошибка при сохранении на сервере");
+        await db.put(updatedTemplate);
+
+        if (isOnline && isAuthorized) {
+        try {
+            await fetch(`http://localhost:8000/templates/${templateId}`, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                _id: updatedTemplate._id,
+                title: updatedTemplate.title,
+                type: updatedTemplate.type,
+                tag: updatedTemplate.tag,
+                createdAt: updatedTemplate.createdAt,
+                formFields: clearedFormData,
+                tableData: tableDataArray,
+                username: username
+            })
+            });
+        } catch (serverError) {
+            console.error('Ошибка при сохранении на сервере:', serverError);
+        }
+        }
+
+        setConfirmationDialog({
+        isOpen: true,
+        message: isOnline && isAuthorized 
+            ? 'Шаблон успешно сохранен!' 
+            : 'Шаблон сохранен локально',
+        onConfirm: () => setConfirmationDialog(prev => ({ ...prev, isOpen: false })),
+        onClose: null,
+        isConfirmOnly: true
+        });
+
+        setIsEditMode(false);
+        setUnsavedChanges(false);
+        setShowConfirmationDialog(false);
+
+    } catch (error) {
+        console.error('Ошибка при сохранении:', error);
+        setConfirmationDialog({
+        isOpen: true,
+        message: 'Ошибка при сохранении шаблона',
+        onConfirm: () => setConfirmationDialog(prev => ({ ...prev, isOpen: false })),
+        onClose: null,
+        isConfirmOnly: true
+        });
     }
-
-    setConfirmationDialog({
-      isOpen: true,
-      message: 'Шаблон успешно сохранен!',
-      onConfirm: () => setConfirmationDialog({ ...confirmationDialog, isOpen: false, isConfirmOnly: true }),
-      onClose: null,
-      isConfirmOnly: true
-    });
-
-    setIsEditMode(false);
-    setUnsavedChanges(false);
-    setShowConfirmationDialog(false);
-  } catch (error) {
-    console.error('Ошибка при сохранении шаблона:', error);
-  }
-};
+    };
 
     const handleFormSaveComplete = (formTag) => {
         setConfirmationDialog({

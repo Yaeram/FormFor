@@ -20,22 +20,21 @@ app.add_middleware(
 @app.on_event("startup")
 async def startup():
     inspector = inspect(engine)
+    tables = inspector.get_table_names()
 
-    tables_to_check = ["templates", "forms", "users"]
-    existing_tables = inspector.get_table_names()
+    required_tables = set(Base.metadata.tables.keys())
+    missing_tables = required_tables - set(tables)
 
-    tables_missing = [table for table in tables_to_check if table not in existing_tables]
-
-    if tables_missing:
+    if missing_tables:
+        print(f"🔧 Creating missing tables: {missing_tables}")
         Base.metadata.create_all(bind=engine)
-        print(f"Созданы таблицы: {', '.join(tables_missing)}")
+        print("✅ Tables created.")
     else:
-        print("Все нужные таблицы уже существуют")
+        print("✅ All required tables already exist.")
 
-# Подключение маршрутов
 app.include_router(template_routes.router)
 app.include_router(form_routes.router)
-app.include_router(auth_routes.router, prefix="/auth", tags=["auth"])
+app.include_router(auth_routes.router)
 
 @app.get("/")
 async def root():

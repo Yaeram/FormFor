@@ -7,6 +7,10 @@ from typing import List
 
 router = APIRouter()
 
+@router.get("/ping")
+def ping():
+    return {"status": "ok"}
+
 @router.post("/register", response_model=UserOut)
 def register(user: UserCreate, db: Session = Depends(get_db)):
     existing_user = db.query(User).filter(User.username == user.username).first()

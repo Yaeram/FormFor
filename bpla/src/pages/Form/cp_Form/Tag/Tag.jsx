@@ -16,48 +16,73 @@ function Tag({ defaultTitle, formTitle, formData, templateId, onComplete, tableD
         return tag;
     };
 
-    const handleSave = async () => {
-        setIsGenerating(true);
-        formTitle = formTitle || defaultTitle;
-        try {
-            const formTag = generateTag();
-            const filledFormData = {
-                _id: `form_${uuidv4()}`,
-                templateId: templateId,
-                formFields: formData,
-                tableData: tableDataArray,
-                type: 'form',
-                title: formTitle,
-                tag: formTag,
-                createdAt: Date.now()
-            };
+   const handleSave = async () => {
+    setIsGenerating(true);
+    formTitle = formTitle || defaultTitle;
+    
+    try {
+        const isConnected = localStorage.getItem('connected') === 'true';
+        const isAuthorized = localStorage.getItem('authorized') === 'true';
+        const username = localStorage.getItem('username'); 
 
-            const filled_responce = await db.put(filledFormData);
-            console.log(filledFormData)
-            const dataWithRev = {
-                ...filledFormData,
-                _rev: filled_responce.rev
+        const formTag = generateTag();
+        const filledFormData = {
+            _id: `form_${uuidv4()}`,
+            templateId: templateId,
+            formFields: formData,
+            tableData: tableDataArray,
+            type: 'form',
+            title: formTitle,
+            tag: formTag,
+            createdAt: Date.now(),
+            username: username
+        };
+
+        const filled_response = await db.put(filledFormData);
+        const dataWithRev = {
+            ...filledFormData,
+            _rev: filled_response.rev
+        };
+
+        if (isConnected && isAuthorized) {
+            try {
+                const response = await fetch('http://localhost:8000/forms/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        ...dataWithRev,
+                        template_id: dataWithRev.templateId,
+                        form_fields: dataWithRev.formFields,
+                        table_data: dataWithRev.tableData,
+                        created_at: dataWithRev.createdAt
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Ошибка сервера: ${response.statusText}`);
+                }
+
+                console.log('Анкета успешно сохранена на сервере');
+            } catch (serverError) {
+                console.error('Ошибка при сохранении на сервере:', serverError);
             }
-
-            const response = await fetch('http://localhost:8000/forms/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(dataWithRev)
-            });
-
-            if (!response.ok) {
-                throw new Error(`Server error: ${response.statusText}`);
-            }
-
-            onComplete(formTag, filledFormData);
-        } catch (error) {
-            console.error('Error saving filled form:', error);
-        } finally {
-            setIsGenerating(false);
         }
-    };
+
+        onComplete(formTag, filledFormData);
+
+        alert(isConnected && isAuthorized 
+            ? 'Анкета успешно сохранена и отправлена!' 
+            : 'Анкета сохранена локально');
+
+    } catch (error) {
+        console.error('Ошибка при сохранении анкеты:', error);
+        alert('Ошибка при сохранении анкеты');
+    } finally {
+        setIsGenerating(false);
+    }
+};
 
 
     return (
